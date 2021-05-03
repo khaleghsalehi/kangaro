@@ -43,8 +43,10 @@ public class BackgroundService extends Service {
     private static final String STOP = "STOP";
     private static final String SCREENCAP_NAME = "screencap";
     private static int result_code = 0;
-    private static Intent result_data ;
+    private static Intent result_data;
     private static int IMAGES_PRODUCED;
+
+    public static String filesPath = "";
 
     private MediaProjection mMediaProjection;
     private String mStoreDir;
@@ -106,11 +108,11 @@ public class BackgroundService extends Service {
                     bitmap.copyPixelsFromBuffer(buffer);
 
                     // write bitmap to a file
-                    fos = new FileOutputStream(mStoreDir + "/myscreen_" + IMAGES_PRODUCED + ".png");
+                    fos = new FileOutputStream(mStoreDir + "/"+MainActivity.PREFIX_FILE_NAME + IMAGES_PRODUCED + ".jpg");
                     bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
 
                     IMAGES_PRODUCED++;
-                    Log.e(TAG, "captured image: " + IMAGES_PRODUCED);
+                    Log.e(TAG, "captured image: " + IMAGES_PRODUCED + " in path " + mStoreDir);
                 }
 
             } catch (Exception e) {
@@ -132,7 +134,7 @@ public class BackgroundService extends Service {
 
             try {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    Log.e(TAG, "sleep for 5 second -> "+ LocalDateTime.now());
+                    Log.e(TAG, "sleep for 5 second -> " + LocalDateTime.now());
                 }
                 Thread.sleep(5_000);
             } catch (InterruptedException e) {
@@ -196,6 +198,7 @@ public class BackgroundService extends Service {
         File externalFilesDir = getExternalFilesDir(null);
         if (externalFilesDir != null) {
             mStoreDir = externalFilesDir.getAbsolutePath() + "/screenshots/";
+            filesPath=mStoreDir;
             File storeDirectory = new File(mStoreDir);
             if (!storeDirectory.exists()) {
                 boolean success = storeDirectory.mkdirs();
@@ -232,20 +235,15 @@ public class BackgroundService extends Service {
         if (isStartCommand(intent)) {
 
 
-
-
             // start projection
             int resultCode = intent.getIntExtra(RESULT_CODE, Activity.RESULT_CANCELED);
 
             result_code = resultCode;
 
 
-
             Intent data = intent.getParcelableExtra(DATA);
             result_data = data;
             startProjection(resultCode, data);
-
-
 
 
         } else if (isStopCommand(intent)) {
@@ -259,7 +257,6 @@ public class BackgroundService extends Service {
     }
 
     private void startProjection(int resultCode, Intent data) {
-
 
 
         MediaProjectionManager mpManager =
@@ -282,7 +279,7 @@ public class BackgroundService extends Service {
                 }
 
                 // register media projection stop callback
-                mMediaProjection.registerCallback(new MediaProjectionStopCallback(),mHandler);
+                mMediaProjection.registerCallback(new MediaProjectionStopCallback(), mHandler);
             }
         }
     }
@@ -317,7 +314,6 @@ public class BackgroundService extends Service {
 
     @Override
     public void onDestroy() {
-
 
 
         super.onDestroy();
