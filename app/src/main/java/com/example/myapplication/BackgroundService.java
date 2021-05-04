@@ -215,7 +215,6 @@ public class BackgroundService extends Service {
         // create notification
         Pair<Integer, Notification> notification = NotificationUtils.getNotification(this);
         startForeground(notification.first, notification.second);
-
         new Thread() {
             @Override
             public void run() {

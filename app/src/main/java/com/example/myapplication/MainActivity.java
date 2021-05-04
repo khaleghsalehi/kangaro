@@ -9,6 +9,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ImageView;
 
 import com.google.zxing.BarcodeFormat;
@@ -16,14 +17,19 @@ import com.journeyapps.barcodescanner.BarcodeEncoder;
 
 import java.util.Timer;
 
+import static com.example.myapplication.Utils.getRandomString;
+
 public class MainActivity extends Activity {
     private static final int REQUEST_CODE = 100;
     private static final String TAG = "kangaro";
     private static int result_code = 0;
     private static Intent result_data;
-    public static final String PREFIX_FILE_NAME="Screen_";
-    public static final String PREFIX_PROCESSED_FILE_NAME ="Processed_";
-    public static final String SERVER_URL ="http://192.168.43.81:9000";
+    public static final String PREFIX_FILE_NAME = "Screen_";
+    public static final String PREFIX_PROCESSED_FILE_NAME = "Processed_";
+    public static final String SERVER_URL = "http://192.168.43.81:9000";
+    public static String userName = "";
+    public static String password = "";
+    public static boolean authKeyStatus = false;
 
 
     @Override
@@ -43,26 +49,55 @@ public class MainActivity extends Activity {
         UploadServiceManager uploadServiceManager = new UploadServiceManager();
         timerUpload.schedule(uploadServiceManager, 0, 10_000);
 
+        runOnUiThread(new Runnable() {
 
-//        MediaProjectionManager mProjectionManager =
-//                (MediaProjectionManager) getSystemService(Context.MEDIA_PROJECTION_SERVICE);
-//        startActivityForResult(mProjectionManager.createScreenCaptureIntent(), REQUEST_CODE);
+            @Override
+            public void run() {
 
-        try {
-            BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
-            // Set the value here
-            String value = "hi, ny name is khalegh, this is a test map......";
+                getQrCode(getWindow().getDecorView().findViewById(android.R.id.content));
+            }
+        });
 
-            Bitmap bitmap = barcodeEncoder.encodeBitmap(value, BarcodeFormat.QR_CODE, 400, 400);
-            ImageView imageViewQrCode = (ImageView) findViewById(R.id.qrimage);
-            imageViewQrCode.setImageBitmap(bitmap);
-        } catch(Exception e) {
+    }
 
+    public void getQrCode(View view) {
+        if (authKeyStatus) {
+            Log.e(TAG, " user already logged in.");
+            userName = "khalegh";
+            password = "salehi";
+        } else {
+            Log.e(TAG, " user not logged in");
+            EditText u = findViewById(R.id.username);
+            EditText p = findViewById(R.id.password);
+            userName = u.getText().toString();
+            password = p.getText().toString();
+            u.setText("");
+            p.setText("");
+        }
+
+        if (userName.length() > 0 && password.length() > 0) {
+            // authentication
+            // if authentication, then store authkey in phone
+            authKeyStatus = true;
+
+            String delimiter = "|";
+            String authKey = userName + delimiter + password + delimiter + getRandomString(15); // server side all string - last 15 char
+
+
+            try {
+                BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
+                Bitmap bitmap = barcodeEncoder.encodeBitmap(authKey, BarcodeFormat.QR_CODE, 400, 400);
+                ImageView imageViewQrCode = (ImageView) findViewById(R.id.qrimage);
+                imageViewQrCode.setImageBitmap(bitmap);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else {
+            Log.e(TAG, "Please enter username and password");
         }
 
 
     }
-
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -117,14 +152,14 @@ public class MainActivity extends Activity {
         //stopService(mServiceIntent);
 
 
-        Intent broadcastIntent = new Intent();
-        broadcastIntent.putExtra("resultCode", result_code);
-        broadcastIntent.putExtras(result_data);
-        broadcastIntent.setAction("restartservice");
-        broadcastIntent.setClass(this, RestartService.class);
-        this.sendBroadcast(broadcastIntent);
-
-
+//        Intent broadcastIntent = new Intent();
+//        broadcastIntent.putExtra("resultCode", result_code);
+//        broadcastIntent.putExtras(result_data);
+//        broadcastIntent.setAction("restartservice");
+//        broadcastIntent.setClass(this, RestartService.class);
+//        this.sendBroadcast(broadcastIntent);
         super.onDestroy();
     }
+
+
 }

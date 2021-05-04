@@ -13,6 +13,7 @@ public class PingServiceManager extends TimerTask {
     public void run() {
         try {
             Network.ping(pingAgent, PING_URL);
+
         } catch (IOException e) {
             e.printStackTrace();
         }
