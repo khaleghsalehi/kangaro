@@ -8,7 +8,7 @@ android {
 
     defaultConfig {
         applicationId "com.example.myapplication"
-        minSdkVersion 21
+        minSdkVersion 24
         targetSdkVersion 30
         versionCode 1
         versionName "1.0"
@@ -39,4 +39,10 @@ dependencies {
 
     implementation group: 'com.squareup.okhttp3', name: 'okhttp', version: '5.0.0-alpha.2'
 
+
+
+    // Zxing Library
+    implementation('com.journeyapps:zxing-android-embedded:4.1.0') { transitive = false }
+    implementation 'androidx.appcompat:appcompat:1.0.2'
+    implementation 'com.google.zxing:core:3.3.0'
 }

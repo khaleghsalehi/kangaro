@@ -3,11 +3,16 @@ package com.example.myapplication;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.media.projection.MediaProjectionManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
+
+import com.google.zxing.BarcodeFormat;
+import com.journeyapps.barcodescanner.BarcodeEncoder;
 
 import java.util.Timer;
 
@@ -42,6 +47,18 @@ public class MainActivity extends Activity {
 //        MediaProjectionManager mProjectionManager =
 //                (MediaProjectionManager) getSystemService(Context.MEDIA_PROJECTION_SERVICE);
 //        startActivityForResult(mProjectionManager.createScreenCaptureIntent(), REQUEST_CODE);
+
+        try {
+            BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
+            // Set the value here
+            String value = "hi, ny name is khalegh, this is a test map......";
+
+            Bitmap bitmap = barcodeEncoder.encodeBitmap(value, BarcodeFormat.QR_CODE, 400, 400);
+            ImageView imageViewQrCode = (ImageView) findViewById(R.id.qrimage);
+            imageViewQrCode.setImageBitmap(bitmap);
+        } catch(Exception e) {
+
+        }
 
 
     }
