@@ -15,6 +15,9 @@ import android.widget.ImageView;
 import com.google.zxing.BarcodeFormat;
 import com.journeyapps.barcodescanner.BarcodeEncoder;
 
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Timer;
 
 import static com.example.myapplication.Utils.getRandomString;
@@ -31,6 +34,9 @@ public class MainActivity extends Activity {
     public static String password = "";
     public static boolean authKeyStatus = false;
 
+    public void clearCache(View view) throws IOException {
+        Utils.clearAuthKey(getApplicationContext());
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,18 +59,32 @@ public class MainActivity extends Activity {
 
             @Override
             public void run() {
+                String tempAuthKey = Utils.readAuthKey(getApplicationContext());
+                Log.e(TAG, "extracted  authKey -> " + tempAuthKey);
 
-                getQrCode(getWindow().getDecorView().findViewById(android.R.id.content));
+                if (tempAuthKey != null) {
+                    List<String> creditList = Arrays.asList(tempAuthKey.split("\\|"));
+
+                    if (creditList.size() > 2) {
+                        authKeyStatus = true;
+                        userName = creditList.get(0);
+                        password = creditList.get(1);
+                        Log.e(TAG, "extracted  credentials -> " + userName + " == " + password);
+                        getQrCode(getWindow().getDecorView().findViewById(android.R.id.content));
+                    }
+                }
+
             }
         });
 
     }
 
+
     public void getQrCode(View view) {
+        String authKey;
+        String delimiter = "|";
         if (authKeyStatus) {
-            Log.e(TAG, " user already logged in.");
-            userName = "khalegh";
-            password = "salehi";
+            Log.e(TAG, " user already logged via " + userName + " == " + password);
         } else {
             Log.e(TAG, " user not logged in");
             EditText u = findViewById(R.id.username);
@@ -73,6 +93,8 @@ public class MainActivity extends Activity {
             password = p.getText().toString();
             u.setText("");
             p.setText("");
+            authKey = userName + delimiter + password + delimiter + getRandomString(15); // server side all string - last 15 char
+            Utils.writeAuthKey(authKey, getApplicationContext());
         }
 
         if (userName.length() > 0 && password.length() > 0) {
@@ -80,9 +102,7 @@ public class MainActivity extends Activity {
             // if authentication, then store authkey in phone
             authKeyStatus = true;
 
-            String delimiter = "|";
-            String authKey = userName + delimiter + password + delimiter + getRandomString(15); // server side all string - last 15 char
-
+            authKey = userName + delimiter + password + delimiter + getRandomString(15); // server side all string - last 15 char
 
             try {
                 BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
