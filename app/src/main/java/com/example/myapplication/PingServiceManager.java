@@ -7,16 +7,14 @@ import okhttp3.OkHttpClient;
 
 public class PingServiceManager extends TimerTask {
     private final static OkHttpClient pingAgent = new OkHttpClient();
-    private final static String PING_URL = MainActivity.SERVER_URL;
+    private static final String TAG = "kangaro";
 
     @Override
     public void run() {
         try {
-            Network.ping(pingAgent, PING_URL);
-
+            Network.ping(pingAgent, MainActivity.PING_URL);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-}
-
+};

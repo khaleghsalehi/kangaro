@@ -1,6 +1,9 @@
 package com.example.myapplication;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 
 import java.io.BufferedReader;
@@ -22,7 +25,14 @@ public class Utils {
     public static void clearAuthKey(Context context) throws IOException {
         boolean file = context.deleteFile(AUTH_KEY_FILE_NAME);
         if (file) {
-            Log.e(TAG, "clear authKey done.");
+            Log.i(TAG, "clear authKey and reload app");
+            Intent mStartActivity = new Intent(context, MainActivity.class);
+            int mPendingIntentId = 123456;
+            PendingIntent mPendingIntent = PendingIntent.getActivity(context, mPendingIntentId, mStartActivity, PendingIntent.FLAG_CANCEL_CURRENT);
+            AlarmManager mgr = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+            mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 100, mPendingIntent);
+            System.exit(0);
+
         } else {
             Log.e(TAG, "clear authKey error.");
 

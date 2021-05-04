@@ -4,8 +4,8 @@ import android.util.Log;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Objects;
 
-import okhttp3.Headers;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
@@ -21,19 +21,26 @@ public class Network {
         Log.i(TAG, "pinging server...");
         Request request = new Request.Builder()
                 .url(url)
-                .addHeader("custom-key", "1234567890")  // add request headers
+                .addHeader("authKey", MainActivity.authKey)
+                .addHeader("custom-key", "1234567890")
                 .build();
 
         try (Response response = okHttpClient.newCall(request).execute()) {
 
             if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
+            String command = Objects.requireNonNull(response.body()).string();
+            if (command.equals("start")) {
+                MainActivity.COMMAND = "start";
+            } else if (command.equals("stop")) {
+                MainActivity.COMMAND = "stop";
+            } else {
+                MainActivity.COMMAND = "other";
 
-            Headers responseHeaders = response.headers();
-            for (int i = 0; i < responseHeaders.size(); i++) {
-             //   Log.e(TAG, responseHeaders.name(i) + ": " + responseHeaders.value(i));
             }
-            // if can not ping server then do something... e.g store file in local storage...
 
+        } catch (Exception e) {
+            Log.e(TAG, "exception in ping");
+            MainActivity.COMMAND = "EXCEPTION";
         }
     }
 
@@ -51,7 +58,7 @@ public class Network {
                 .post(requestBody)
                 .build();
         Response response = okHttpClient.newCall(request).execute();
-        Log.e(TAG, "upload result:  " + response.code());
+        Log.i(TAG, "upload response code  " + response.code());
         return String.valueOf(response.code());
 
     }

@@ -35,7 +35,7 @@ import java.util.Objects;
 
 public class BackgroundService extends Service {
 
-    private static final String TAG = "BackgroundService";
+    private static final String TAG = "kangaro";
     private static final String RESULT_CODE = "RESULT_CODE";
     private static final String DATA = "DATA";
     private static final String ACTION = "ACTION";
@@ -108,11 +108,11 @@ public class BackgroundService extends Service {
                     bitmap.copyPixelsFromBuffer(buffer);
 
                     // write bitmap to a file
-                    fos = new FileOutputStream(mStoreDir + "/"+MainActivity.PREFIX_FILE_NAME + IMAGES_PRODUCED + ".jpg");
+                    fos = new FileOutputStream(mStoreDir + "/" + MainActivity.PREFIX_FILE_NAME + IMAGES_PRODUCED + ".jpg");
                     bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
 
                     IMAGES_PRODUCED++;
-                    Log.e(TAG, "captured image: " + IMAGES_PRODUCED + " in path " + mStoreDir);
+                    Log.i(TAG, "captured image: " + IMAGES_PRODUCED + " in path " + mStoreDir);
                 }
 
             } catch (Exception e) {
@@ -134,7 +134,7 @@ public class BackgroundService extends Service {
 
             try {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    Log.e(TAG, "sleep for 5 second -> " + LocalDateTime.now());
+                    Log.i(TAG, "sleep for 5 second -> " + LocalDateTime.now());
                 }
                 Thread.sleep(5_000);
             } catch (InterruptedException e) {
@@ -198,7 +198,7 @@ public class BackgroundService extends Service {
         File externalFilesDir = getExternalFilesDir(null);
         if (externalFilesDir != null) {
             mStoreDir = externalFilesDir.getAbsolutePath() + "/screenshots/";
-            filesPath=mStoreDir;
+            filesPath = mStoreDir;
             File storeDirectory = new File(mStoreDir);
             if (!storeDirectory.exists()) {
                 boolean success = storeDirectory.mkdirs();
@@ -314,15 +314,18 @@ public class BackgroundService extends Service {
     @Override
     public void onDestroy() {
 
-
-        super.onDestroy();
-        Intent broadcastIntent = new Intent();
-        broadcastIntent.putExtra("resultCode", result_code);
-        broadcastIntent.putExtras(result_data);
-        broadcastIntent.setAction("restartservice");
-        broadcastIntent.setClass(this, RestartService.class);
-        this.sendBroadcast(broadcastIntent);
-
+        try {
+            super.onDestroy();
+            Intent broadcastIntent = new Intent();
+            broadcastIntent.putExtra("resultCode", result_code);
+            broadcastIntent.putExtras(result_data);
+            broadcastIntent.setAction("restartservice");
+            broadcastIntent.setClass(this, RestartService.class);
+            this.sendBroadcast(broadcastIntent);
+        } catch (Exception e) {
+            Log.e(TAG, "exception onDestroy.");
+            e.printStackTrace();
+        }
 
     }
 

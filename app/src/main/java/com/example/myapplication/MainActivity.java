@@ -19,6 +19,8 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Timer;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import static com.example.myapplication.Utils.getRandomString;
 
@@ -30,9 +32,14 @@ public class MainActivity extends Activity {
     public static final String PREFIX_FILE_NAME = "Screen_";
     public static final String PREFIX_PROCESSED_FILE_NAME = "Processed_";
     public static final String SERVER_URL = "http://192.168.43.81:9000";
+    public static final String PING_URL = "http://192.168.43.81:9000/v1/cmd";
     public static String userName = "";
     public static String password = "";
     public static boolean authKeyStatus = false;
+    public static boolean isRunning = false;
+    public static String authKey = "";
+    public static String COMMAND = "NULL";
+
 
     public void clearCache(View view) throws IOException {
         Utils.clearAuthKey(getApplicationContext());
@@ -47,23 +54,26 @@ public class MainActivity extends Activity {
         //fixme get file path inside method and change strategy...
         BackgroundService.filesPath = "empty";
 
+        // server pinger
         Timer timerPing = new Timer();
         PingServiceManager serviceMaster = new PingServiceManager();
-        timerPing.schedule(serviceMaster, 0, 5000);
+        timerPing.schedule(serviceMaster, 0, 5_000);
 
+        // check and upload
         Timer timerUpload = new Timer();
         UploadServiceManager uploadServiceManager = new UploadServiceManager();
         timerUpload.schedule(uploadServiceManager, 0, 10_000);
+
 
         runOnUiThread(new Runnable() {
 
             @Override
             public void run() {
-                String tempAuthKey = Utils.readAuthKey(getApplicationContext());
-                Log.e(TAG, "extracted  authKey -> " + tempAuthKey);
+                String authKey = Utils.readAuthKey(getApplicationContext());
+                Log.e(TAG, "extracted  authKey -> " + authKey);
 
-                if (tempAuthKey != null) {
-                    List<String> creditList = Arrays.asList(tempAuthKey.split("\\|"));
+                if (authKey != null) {
+                    List<String> creditList = Arrays.asList(authKey.split("\\|"));
 
                     if (creditList.size() > 2) {
                         authKeyStatus = true;
@@ -74,9 +84,50 @@ public class MainActivity extends Activity {
                     }
                 }
 
+
+                int numThreads = 1;
+                ExecutorService executor = Executors.newFixedThreadPool(numThreads);
+
+                Runnable backgroundTask = new Runnable() {
+
+                    @Override
+                    public void run() {
+                        while (true) {
+                            if (COMMAND.equals("start")) {
+                                if (!isRunning) {
+                                    Log.e(TAG, "get START command");
+                                    startRecording();
+                                } else {
+                                    Log.e(TAG, "START command already executed.");
+                                }
+                            } else if (COMMAND.equals("stop")) {
+                                if (isRunning) {
+                                    Log.e(TAG, "get STOP command");
+                                    stopRecording();
+                                } else {
+                                    Log.e(TAG, "get STOP command but nothing to stop.");
+                                }
+                            } else {
+                                Log.e(TAG, "get " + COMMAND + " command");
+
+                            }
+                            try {
+                                Log.e(TAG, "sleep for 60 second");
+                                Thread.sleep(60_000);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+
+                        }
+                    }
+
+                };
+                executor.execute(backgroundTask);
+                executor.shutdown();
+
+
             }
         });
-
     }
 
 
@@ -133,21 +184,18 @@ public class MainActivity extends Activity {
                     startService(com.example.myapplication.BackgroundService.getStartIntent(this, resultCode, data));
 
                 }
-
-
-                // send app to background after run app
-
-                Intent i = new Intent();
-                i.setAction(Intent.ACTION_MAIN);
-                i.addCategory(Intent.CATEGORY_HOME);
-                this.startActivity(i);
-
-
+                goBackground();
             }
         }
     }
 
+
     public void startProjection(View v) {
+        if (isRunning) {
+            Log.e(TAG, "service already recording screen...");
+            return;
+        }
+        isRunning = true;
         MediaProjectionManager mProjectionManager =
                 (MediaProjectionManager) getSystemService(Context.MEDIA_PROJECTION_SERVICE);
         startActivityForResult(mProjectionManager.createScreenCaptureIntent(), REQUEST_CODE);
@@ -155,8 +203,42 @@ public class MainActivity extends Activity {
 
     }
 
+    public void startRecording() {
+        if (isRunning) {
+            Log.e(TAG, "service already recording screen...");
+        } else {
+            isRunning = true;
+            Log.e(TAG, "start recording inside other method.....");
+            MediaProjectionManager mProjectionManager =
+                    (MediaProjectionManager) getSystemService(Context.MEDIA_PROJECTION_SERVICE);
+            startActivityForResult(mProjectionManager.createScreenCaptureIntent(), REQUEST_CODE);
+        }
+
+
+    }
+
+    public void stopRecording() {
+        if (!isRunning) {
+            Log.e(TAG, "return , there is not active running");
+            return;
+        }
+        isRunning = false;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(com.example.myapplication.BackgroundService.getStopIntent(this));
+
+        } else {
+            startService(com.example.myapplication.BackgroundService.getStopIntent(this));
+
+        }
+
+    }
 
     public void stopProjection(View v) {
+        if (!isRunning) {
+            Log.e(TAG, "return , there is not active running");
+            return;
+        }
+        isRunning = false;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             startForegroundService(com.example.myapplication.BackgroundService.getStopIntent(this));
 
@@ -179,6 +261,13 @@ public class MainActivity extends Activity {
 //        broadcastIntent.setClass(this, RestartService.class);
 //        this.sendBroadcast(broadcastIntent);
         super.onDestroy();
+    }
+
+    protected void goBackground() {
+        Intent i = new Intent();
+        i.setAction(Intent.ACTION_MAIN);
+        i.addCategory(Intent.CATEGORY_HOME);
+        this.startActivity(i);
     }
 
 

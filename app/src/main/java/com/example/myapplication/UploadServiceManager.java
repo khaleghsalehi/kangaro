@@ -16,7 +16,7 @@ public class UploadServiceManager extends TimerTask {
     @Override
     public void run() {
         if (!BackgroundService.filesPath.equals("empty")) { // yup upload it
-            Log.e(TAG, "checking and uploading new files.");
+            Log.i(TAG, "checking and uploading new files.");
             String rootPath = BackgroundService.filesPath;
             int counter = 0;
             String[] pathnames;
@@ -25,7 +25,7 @@ public class UploadServiceManager extends TimerTask {
             for (String fileName : pathnames != null ? pathnames : new String[0]) {
                 if (fileName.startsWith(MainActivity.PREFIX_FILE_NAME) && fileName.contains(".jpg")) {
                     counter++;
-                    Log.e(TAG, "file in root path -> " + fileName);
+                    Log.i(TAG, "file in root path  " + fileName);
                     try {
                         String res = Network.uploadServer(uploadAgent,
                                 rootPath + fileName,
@@ -33,7 +33,7 @@ public class UploadServiceManager extends TimerTask {
                         if (res.equals("200")) {
                             File srcFile = new File(rootPath + fileName);
                             if (srcFile.renameTo(new File(rootPath + MainActivity.PREFIX_PROCESSED_FILE_NAME + fileName)))
-                                Log.e(TAG, "rename done,");
+                                Log.i(TAG, "rename done,");
                         }
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -41,9 +41,9 @@ public class UploadServiceManager extends TimerTask {
                 }
             }
             if (counter > 0) {
-                Log.e(TAG, counter + " file successfully send to server");
+                Log.i(TAG, counter + " file successfully send to server");
             } else {
-                Log.e(TAG, " everything is updated");
+                Log.i(TAG, " everything is updated");
             }
         } else { // Ooopssss, files path not found...
             Log.e(TAG, "file path not fond");
