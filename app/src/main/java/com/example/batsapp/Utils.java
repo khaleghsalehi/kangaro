@@ -1,4 +1,4 @@
-package com.example.myapplication;
+package com.example.batsapp;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -19,13 +19,13 @@ import java.security.NoSuchAlgorithmException;
 
 public class Utils {
     private static final String AUTH_KEY_FILE_NAME = "auth.txt";
-    private static final String TAG = "kangaro";
+    private static final String TAG = "batsapp";
 
 
     public static void clearAuthKey(Context context) throws IOException {
         boolean file = context.deleteFile(AUTH_KEY_FILE_NAME);
         if (file) {
-            Log.i(TAG, "clear authKey and reload app");
+            Log.d(TAG, "clear authKey and reload app");
             Intent mStartActivity = new Intent(context, MainActivity.class);
             int mPendingIntentId = 123456;
             PendingIntent mPendingIntent = PendingIntent.getActivity(context, mPendingIntentId, mStartActivity, PendingIntent.FLAG_CANCEL_CURRENT);

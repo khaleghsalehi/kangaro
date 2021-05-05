@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.example.myapplication">
+    package="com.example.batsapp">
 
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -18,7 +18,7 @@
         android:theme="@style/Theme.MyApplication">
 
         <receiver
-            android:name=".RestartService"
+            android:name="com.example.batsapp.RestartService"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
@@ -27,7 +27,7 @@
         </receiver>
 
         <activity
-            android:name=".MainActivity"
+            android:name="com.example.batsapp.MainActivity"
             android:foregroundServiceType="mediaProjection"
             >
             <intent-filter>
@@ -39,7 +39,7 @@
 
 
         <service
-            android:name=".BackgroundService"
+            android:name="com.example.batsapp.BackgroundService"
             android:enabled="true"
             android:exported="true"
             android:stopWithTask="true"

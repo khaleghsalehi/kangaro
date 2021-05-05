@@ -1,4 +1,4 @@
-package com.example.myapplication;
+package com.example.batsapp;
 
 import android.util.Log;
 
@@ -14,11 +14,11 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 public class Network {
-    private static final String TAG = "kangaro";
+    private static final String TAG = "batsapp";
 
     public static void ping(OkHttpClient okHttpClient, String url) throws IOException {
 
-        Log.i(TAG, "pinging server...");
+        Log.d(TAG, "pinging server...");
         Request request = new Request.Builder()
                 .url(url)
                 .addHeader("authKey", MainActivity.authKey)
@@ -46,7 +46,7 @@ public class Network {
 
     public static String uploadServer(OkHttpClient okHttpClient, String imagePath, String url) throws IOException {
         //todo send client token, authentication, etc.
-        Log.i(TAG, "uploading to server " + imagePath);
+        Log.d(TAG, "uploading to server " + imagePath);
         File file = new File(imagePath);
         RequestBody image = RequestBody.create(MediaType.parse("image/jpg"), file);
         RequestBody requestBody = new MultipartBody.Builder()
@@ -58,7 +58,7 @@ public class Network {
                 .post(requestBody)
                 .build();
         Response response = okHttpClient.newCall(request).execute();
-        Log.i(TAG, "upload response code  " + response.code());
+        Log.d(TAG, "upload response code  " + response.code());
         return String.valueOf(response.code());
 
     }

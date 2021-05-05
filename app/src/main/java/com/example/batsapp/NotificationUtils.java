@@ -1,4 +1,4 @@
-package com.example.myapplication;
+package com.example.batsapp;
 
 import android.annotation.TargetApi;
 import android.app.Notification;

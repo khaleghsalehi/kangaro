@@ -1,4 +1,4 @@
-package com.example.myapplication;
+package com.example.batsapp;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
@@ -8,11 +8,11 @@ import android.os.Build;
 import android.util.Log;
 
 public class RestartService extends BroadcastReceiver {
-    private static final String TAG ="kangaro" ;
+    private static final String TAG = "batsapp";
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        Log.i(TAG, "Service tried to stop");
+        Log.d(TAG, "Service tried to stop");
 
 
         int resultCode = intent.getIntExtra("resultCode", Activity.RESULT_CANCELED);
@@ -22,10 +22,10 @@ public class RestartService extends BroadcastReceiver {
 
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            context.startForegroundService(com.example.myapplication.BackgroundService.getStartIntent(context, resultCode, result_data));
+            context.startForegroundService(com.example.batsapp.BackgroundService.getStartIntent(context, resultCode, result_data));
 
         } else {
-            context.startService(com.example.myapplication.BackgroundService.getStartIntent(context, resultCode, result_data));
+            context.startService(com.example.batsapp.BackgroundService.getStartIntent(context, resultCode, result_data));
         }
     }
 

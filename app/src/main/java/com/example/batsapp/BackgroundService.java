@@ -1,4 +1,4 @@
-package com.example.myapplication;
+package com.example.batsapp;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -35,7 +35,7 @@ import java.util.Objects;
 
 public class BackgroundService extends Service {
 
-    private static final String TAG = "kangaro";
+    private static final String TAG = "batsapp";
     private static final String RESULT_CODE = "RESULT_CODE";
     private static final String DATA = "DATA";
     private static final String ACTION = "ACTION";
@@ -112,7 +112,7 @@ public class BackgroundService extends Service {
                     bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
 
                     IMAGES_PRODUCED++;
-                    Log.i(TAG, "captured image: " + IMAGES_PRODUCED + " in path " + mStoreDir);
+                    Log.d(TAG, "captured image: " + IMAGES_PRODUCED + " in path " + mStoreDir);
                 }
 
             } catch (Exception e) {
@@ -134,7 +134,7 @@ public class BackgroundService extends Service {
 
             try {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    Log.i(TAG, "sleep for 5 second -> " + LocalDateTime.now());
+                    Log.d(TAG, "sleep for 5 second -> " + LocalDateTime.now());
                 }
                 Thread.sleep(5_000);
             } catch (InterruptedException e) {
