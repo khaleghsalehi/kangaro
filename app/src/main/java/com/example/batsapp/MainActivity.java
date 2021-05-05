@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.google.zxing.BarcodeFormat;
 import com.journeyapps.barcodescanner.BarcodeEncoder;
@@ -37,9 +38,14 @@ public class MainActivity extends Activity {
     public static String password = "";
     public static boolean authKeyStatus = false;
     public static boolean isRunning = false;
+    //todo authKey is a reverse(SHA1(random)+SHA1(username+password)) or
+    // (reverse(MAGIC,KEY(rnd)+IV(rnd)+AES(username+password,KEY,IV)
+    // todo user authKey as a header token and authentication propose
     public static String authKey = "";
     public static String COMMAND = "init";
 
+    private final static String MONITORING_ON = "نظارت بر کودک: روشن";
+    private final static String MONITORING_OFF = "نظارت بر کودک: خاموش";
 
     public void clearCache(View view) throws IOException {
         Utils.clearAuthKey(getApplicationContext());
@@ -50,6 +56,8 @@ public class MainActivity extends Activity {
         Log.e(TAG, "starting batsapp...");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        TextView statusLabel = findViewById(R.id.status);
+
 
         //fixme get file path inside method and change strategy...
         BackgroundService.filesPath = "empty";
@@ -97,6 +105,7 @@ public class MainActivity extends Activity {
                                 if (!isRunning) {
                                     Log.d(TAG, "get START command");
                                     startRecording();
+                                    statusLabel.setText(MONITORING_ON);
                                 } else {
                                     Log.d(TAG, "START command already executed.");
                                 }
@@ -104,6 +113,7 @@ public class MainActivity extends Activity {
                                 if (isRunning) {
                                     Log.d(TAG, "get STOP command");
                                     stopRecording();
+                                    statusLabel.setText(MONITORING_OFF);
                                 } else {
                                     Log.d(TAG, "get STOP command but nothing to stop.");
                                 }
@@ -144,13 +154,15 @@ public class MainActivity extends Activity {
             password = p.getText().toString();
             u.setText("");
             p.setText("");
-            authKey = userName + delimiter + password + delimiter + getRandomString(15); // server side all string - last 15 char
+            // server side all string - last 15 char
+            authKey = userName + delimiter + password + delimiter + getRandomString(15);
+            //todo encrypt or scramble the authKey for more security
             Utils.writeAuthKey(authKey, getApplicationContext());
         }
 
         if (userName.length() > 0 && password.length() > 0) {
             // authentication
-            // if authentication, then store authkey in phone
+            // if authentication, then store authKey in phone
             authKeyStatus = true;
 
             authKey = userName + delimiter + password + delimiter + getRandomString(15); // server side all string - last 15 char
