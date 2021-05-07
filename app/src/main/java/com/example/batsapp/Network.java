@@ -5,6 +5,7 @@ import android.util.Log;
 import java.io.File;
 import java.io.IOException;
 import java.util.Objects;
+import java.util.UUID;
 
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -17,12 +18,12 @@ public class Network {
     private static final String TAG = "batsapp";
 
     public static void ping(OkHttpClient okHttpClient, String url) throws IOException {
-
+        UUID uuid = UUID.fromString(MainActivity.USER_HASH);
         Log.d(TAG, "pinging server...");
         Request request = new Request.Builder()
-                .url(url)
+                .url(url + "?uuid=" + uuid)
                 .addHeader("authKey", MainActivity.authKey)
-                .addHeader("custom-key", "1234567890")
+                .addHeader("custom-key", MainActivity.USER_HASH)
                 .build();
 
         try (Response response = okHttpClient.newCall(request).execute()) {

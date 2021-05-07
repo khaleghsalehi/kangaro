@@ -9,7 +9,6 @@ import java.util.TimerTask;
 import okhttp3.OkHttpClient;
 
 public class UploadServiceManager extends TimerTask {
-    private final static OkHttpClient uploadAgent = new OkHttpClient();
     private final static String UPLOAD_URL = MainActivity.SERVER_URL;
     private static final String TAG = "batsapp";
 
@@ -27,6 +26,7 @@ public class UploadServiceManager extends TimerTask {
                     counter++;
                     Log.d(TAG, "file in root path  " + fileName);
                     try {
+                        OkHttpClient uploadAgent = new OkHttpClient();
                         String res = Network.uploadServer(uploadAgent,
                                 rootPath + fileName,
                                 UPLOAD_URL);

