@@ -23,7 +23,7 @@ import java.util.Timer;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import static com.example.batsapp.Utils.getRandomString;
+import kotlin.jvm.Synchronized;
 
 public class MainActivity extends Activity {
     private static final int REQUEST_CODE = 100;
@@ -32,23 +32,22 @@ public class MainActivity extends Activity {
     private static Intent result_data;
     public static final String PREFIX_FILE_NAME = "Screen_";
     public static final String PREFIX_PROCESSED_FILE_NAME = "Processed_";
-    public static final String SERVER_URL = "http://171.22.27.125:8081/v1/getPic";
-    public static final String PING_URL = "http://171.22.27.125:8081/v1/getCommand";
-    //   public static final String SERVER_URL = "http://192.168.43.81:8081/v1/getPic";
-    //   public static final String PING_URL = "http://192.168.43.81:8081/v1/getCommand";
+//    public static final String SERVER_URL = "http://171.22.27.125:8081/v1/getPic";
+//    public static final String PING_URL = "http://171.22.27.125:8081/v1/getCommand";
+//    public static final String REST_AUTH_URL = "http://171.22.27.125:8081/v1/getAuthKey";
+
+    public static final String SERVER_URL = "http://192.168.43.81:8081/v1/getPic";
+    public static final String PING_URL = "http://192.168.43.81:8081/v1/getCommand";
+    public static final String REST_AUTH_URL = "http://192.168.43.81:8081/v1/getAuthKey";
+
 
     public static String userName = "";
     public static String password = "";
     public static boolean authKeyStatus = false;
     public static boolean isRunning = false;
-    //todo authKey is a reverse(SHA1(random)+SHA1(username+password)) or
-    // (reverse(MAGIC,KEY(rnd)+IV(rnd)+AES(username+password,KEY,IV)
-    // todo user authKey as a header token and authentication propose
     public static String authKey = "";
     public static String COMMAND = "init";
 
-    public static String USER_HASH = "8916e636-012b-45be-9801-050898a12ba5";
-    // public static String USER_HASH = "e636-012b-45be-9801-050898a12ba5";
 
     private final static String MONITORING_ON = "نظارت بر کودک: روشن";
     private final static String MONITORING_OFF = "نظارت بر کودک: خاموش";
@@ -84,9 +83,8 @@ public class MainActivity extends Activity {
             @Override
             public void run() {
                 String authKey = Utils.readAuthKey(getApplicationContext());
-                Log.d(TAG, "extracted  authKey  " + authKey);
-
-                if (authKey != null) {
+                if (authKey != null && !authKey.equals("")) {
+                    Log.d(TAG, "extracted  authKey  " + authKey);
                     List<String> creditList = Arrays.asList(authKey.split("\\|"));
 
                     if (creditList.size() > 2) {
@@ -96,12 +94,13 @@ public class MainActivity extends Activity {
                         Log.d(TAG, "extracted  credentials -> " + userName + " == " + password);
                         getQrCode(getWindow().getDecorView().findViewById(android.R.id.content));
                     }
+                } else {
+                    Log.e(TAG, "user first need to login and get QR code.");
                 }
 
 
                 int numThreads = 1;
                 ExecutorService executor = Executors.newFixedThreadPool(numThreads);
-
                 Runnable backgroundTask = new Runnable() {
 
                     @Override
@@ -141,52 +140,44 @@ public class MainActivity extends Activity {
                 executor.execute(backgroundTask);
                 executor.shutdown();
 
-
             }
         });
     }
 
-
+    @Synchronized
     public void getQrCode(View view) {
-        String authKey;
-        String delimiter = "|";
         if (authKeyStatus) {
-            Log.d(TAG, " user already logged via  username: " + userName + " password: " + password);
+            Log.d(TAG, " user already logged via  " + MainActivity.authKey);
         } else {
-            Log.d(TAG, " user not loggedIn.");
             EditText u = findViewById(R.id.username);
             EditText p = findViewById(R.id.password);
             userName = u.getText().toString();
             password = p.getText().toString();
             u.setText("");
             p.setText("");
-            // server side all string - last 15 char
-            authKey = userName + delimiter + password + delimiter + getRandomString(15);
-            //todo encrypt or scramble the authKey for more security
-            Utils.writeAuthKey(authKey, getApplicationContext());
-        }
+            if (userName.length() > 0 && password.length() > 0) {
+                String finalAutKey = Security.getAutokey(userName, password);
 
-        if (userName.length() > 0 && password.length() > 0) {
-            // authentication
-            // if authentication, then store authKey in phone
-            authKeyStatus = true;
-
-            authKey = userName + delimiter + password + delimiter + getRandomString(15); // server side all string - last 15 char
-
-            try {
-                BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
-                Bitmap bitmap = barcodeEncoder.encodeBitmap(authKey, BarcodeFormat.QR_CODE, 400, 400);
-                ImageView imageViewQrCode = (ImageView) findViewById(R.id.qrimage);
-                imageViewQrCode.setImageBitmap(bitmap);
-            } catch (Exception e) {
-                e.printStackTrace();
+                if (finalAutKey != null) {
+                    MainActivity.authKey = finalAutKey;
+                    Log.i(TAG, "REST Auth result " + MainActivity.authKey);
+                    Utils.writeAuthKey(MainActivity.authKey, getApplicationContext());
+                    try {
+                        BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
+                        Bitmap bitmap = barcodeEncoder.encodeBitmap(finalAutKey, BarcodeFormat.QR_CODE,
+                                400, 400);
+                        ImageView imageViewQrCode = (ImageView) findViewById(R.id.qrimage);
+                        imageViewQrCode.setImageBitmap(bitmap);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            } else {
+                Log.e(TAG, "invalid or empty username and password");
             }
-        } else {
-            Log.e(TAG, "invalid or empty username and password");
         }
-
-
     }
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {

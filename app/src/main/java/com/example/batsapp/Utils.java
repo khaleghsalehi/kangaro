@@ -61,9 +61,9 @@ public class Utils {
                 ret = stringBuilder.toString();
             }
         } catch (FileNotFoundException e) {
-            Log.e(TAG, "File not found: " + e.toString());
+            Log.e(TAG, "Error, authKey not found: ");
         } catch (IOException e) {
-            Log.e(TAG, "Can not read file: " + e.toString());
+            Log.e(TAG, "Exception, Can not read authKey");
         }
 
         return ret;
