@@ -16,14 +16,19 @@ import android.widget.TextView;
 import com.google.zxing.BarcodeFormat;
 import com.journeyapps.barcodescanner.BarcodeEncoder;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
+import java.util.Objects;
 import java.util.Timer;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import kotlin.jvm.Synchronized;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 public class MainActivity extends Activity {
     private static final int REQUEST_CODE = 100;
@@ -76,25 +81,27 @@ public class MainActivity extends Activity {
         Timer timerUpload = new Timer();
         UploadServiceManager uploadServiceManager = new UploadServiceManager();
         timerUpload.schedule(uploadServiceManager, 0, 10_000);
-
-
         runOnUiThread(new Runnable() {
 
             @Override
             public void run() {
-                String authKey = Utils.readAuthKey(getApplicationContext());
-                if (authKey != null && !authKey.equals("")) {
-                    Log.d(TAG, "extracted  authKey  " + authKey);
-                    List<String> creditList = Arrays.asList(authKey.split("\\|"));
-
-                    if (creditList.size() > 2) {
+                authKey = Utils.readAuthKey(getApplicationContext());
+                if (!authKey.equals("empty")) {
+                    Log.d(TAG, "extracted  authKey -> " + authKey);
+                    authKeyStatus = true;
+                    Log.d(TAG, "extracted  credentials -> " + authKey);
+                    try {
+                        BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
+                        Bitmap bitmap = barcodeEncoder.encodeBitmap(authKey, BarcodeFormat.QR_CODE,
+                                400, 400);
+                        ImageView imageViewQrCode = (ImageView) findViewById(R.id.qrimage);
+                        imageViewQrCode.setImageBitmap(bitmap);
                         authKeyStatus = true;
-                        userName = creditList.get(0);
-                        password = creditList.get(1);
-                        Log.d(TAG, "extracted  credentials -> " + userName + " == " + password);
-                        getQrCode(getWindow().getDecorView().findViewById(android.R.id.content));
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
                 } else {
+                    authKeyStatus = false;
                     Log.e(TAG, "user first need to login and get QR code.");
                 }
 
@@ -144,7 +151,6 @@ public class MainActivity extends Activity {
         });
     }
 
-    @Synchronized
     public void getQrCode(View view) {
         if (authKeyStatus) {
             Log.d(TAG, " user already logged via  " + MainActivity.authKey);
@@ -156,24 +162,43 @@ public class MainActivity extends Activity {
             u.setText("");
             p.setText("");
             if (userName.length() > 0 && password.length() > 0) {
-                String finalAutKey = Security.getAutokey(userName, password);
 
-                if (finalAutKey != null) {
-                    MainActivity.authKey = finalAutKey;
-                    Log.i(TAG, "REST Auth result " + MainActivity.authKey);
-                    Utils.writeAuthKey(MainActivity.authKey, getApplicationContext());
-                    try {
-                        BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
-                        Bitmap bitmap = barcodeEncoder.encodeBitmap(finalAutKey, BarcodeFormat.QR_CODE,
-                                400, 400);
-                        ImageView imageViewQrCode = (ImageView) findViewById(R.id.qrimage);
-                        imageViewQrCode.setImageBitmap(bitmap);
-                    } catch (Exception e) {
-                        e.printStackTrace();
+
+                // authentication  and get authKey
+                String url = MainActivity.REST_AUTH_URL + "?username=" + userName + "&password=" + password;
+                final String[] result = {""};
+                Request request = new Request.Builder()
+                        .url(url)
+                        .build();
+                OkHttpClient client = new OkHttpClient();
+                client.newCall(request).enqueue(new Callback() {
+
+                    @Override
+                    public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                        result[0] = Objects.requireNonNull(response.body()).string();
+                        Log.i(TAG, "get authKey from server -> " + result[0]);
+                        MainActivity.authKey = result[0];
+                        Log.i(TAG, "REST Auth result " + MainActivity.authKey);
+                        Utils.writeAuthKey(MainActivity.authKey, getApplicationContext());
+                        try {
+                            BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
+                            Bitmap bitmap = barcodeEncoder.encodeBitmap(result[0], BarcodeFormat.QR_CODE,
+                                    400, 400);
+                            ImageView imageViewQrCode = (ImageView) findViewById(R.id.qrimage);
+                            imageViewQrCode.setImageBitmap(bitmap);
+                            //todo check here , need to validate response?
+                            authKeyStatus = true;
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                     }
-                }
-            } else {
-                Log.e(TAG, "invalid or empty username and password");
+
+                    @Override
+                    public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                        authKeyStatus = false;
+                    }
+
+                });
             }
         }
     }

@@ -6,8 +6,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.TimerTask;
 
-import okhttp3.OkHttpClient;
-
 public class UploadServiceManager extends TimerTask {
     private final static String UPLOAD_URL = MainActivity.SERVER_URL;
     private static final String TAG = "batsapp";
@@ -26,13 +24,12 @@ public class UploadServiceManager extends TimerTask {
                     counter++;
                     Log.d(TAG, "file in root path  " + fileName);
                     try {
-                        OkHttpClient uploadAgent = new OkHttpClient();
-                        String res = Network.uploadServer(uploadAgent,
-                                rootPath + fileName,
-                                UPLOAD_URL);
-                        if (res.equals("200")) {
-                            File srcFile = new File(rootPath + fileName);
-                            if (srcFile.renameTo(new File(rootPath + MainActivity.PREFIX_PROCESSED_FILE_NAME + fileName)))
+                        String respose=Network.uploadServer(rootPath, fileName, UPLOAD_URL);
+                        Log.i(TAG, "upload done");
+                        if (respose == "200") {
+                            String imagePath=rootPath+fileName;
+                            File srcFile = new File(imagePath);
+                            if (srcFile.renameTo(new File(imagePath + MainActivity.PREFIX_PROCESSED_FILE_NAME + fileName)))
                                 Log.d(TAG, "rename success, change file status.");
                         }
                     } catch (IOException e) {

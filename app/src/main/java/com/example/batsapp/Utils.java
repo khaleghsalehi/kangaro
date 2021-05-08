@@ -42,7 +42,7 @@ public class Utils {
 
     public static String readAuthKey(Context context) {
 
-        String ret = "";
+        String ret = "empty";
 
         try {
             InputStream inputStream = context.openFileInput(AUTH_KEY_FILE_NAME);
@@ -61,9 +61,9 @@ public class Utils {
                 ret = stringBuilder.toString();
             }
         } catch (FileNotFoundException e) {
-            Log.e(TAG, "Error, authKey not found: ");
+            Log.e(TAG, "Error, authKey not found");
         } catch (IOException e) {
-            Log.e(TAG, "Exception, Can not read authKey");
+            Log.e(TAG, "Exception, error parsing authKey");
         }
 
         return ret;
