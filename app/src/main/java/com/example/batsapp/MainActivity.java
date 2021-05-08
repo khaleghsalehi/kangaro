@@ -50,7 +50,7 @@ public class MainActivity extends Activity {
     public static String password = "";
     public static boolean authKeyStatus = false;
     public static boolean isRunning = false;
-    public static String authKey = "";
+    public static String authKey = "empty";
     public static String COMMAND = "init";
 
 
@@ -134,8 +134,8 @@ public class MainActivity extends Activity {
 
                             }
                             try {
-                                Log.d(TAG, "sleep for 60 second");
-                                Thread.sleep(10_000);
+                                Log.d(TAG, "sleep for 5 second");
+                                Thread.sleep(5_000);
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
                             }

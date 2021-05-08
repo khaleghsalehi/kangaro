@@ -41,9 +41,7 @@ public class Network {
         }
     }
 
-    public static String uploadServer(String rootPath,String fileName, String url) throws IOException {
-        // Async call API and upload file to server
-        String imagePath=rootPath+fileName;
+    public static String uploadServer(String imagePath, String url) throws IOException {
         Log.d(TAG, "uploading to server " + imagePath);
         File file = new File(imagePath);
         RequestBody image = RequestBody.create(MediaType.parse("image/jpg"), file);
@@ -55,43 +53,10 @@ public class Network {
                 .url(url)
                 .post(requestBody)
                 .build();
-
-
         OkHttpClient client = new OkHttpClient();
-
-
-
-
-
         Response response = client.newCall(request).execute();
         Log.d(TAG, "upload response code  " + response.code());
         return String.valueOf(response.code());
-
-
-
-
-
-
-//        client.newCall(request).enqueue(new Callback() {
-//
-//
-//            @Override
-//            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-//                Log.i(TAG, "upload done");
-//                if (response.code() == 200) {
-//                    File srcFile = new File(imagePath);
-//                    if (srcFile.renameTo(new File(imagePath + MainActivity.PREFIX_PROCESSED_FILE_NAME + fileName)))
-//                        Log.d(TAG, "rename success, change file status.");
-//                }
-//            }
-//
-//            @Override
-//            public void onFailure(@NotNull Call call, @NotNull IOException e) {
-//                Log.e(TAG, "error while uploading");
-//            }
-//
-//        });
-
 
     }
 
