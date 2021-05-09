@@ -1,17 +1,32 @@
 package com.example.batsapp;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.media.projection.MediaProjectionManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
+import android.webkit.ValueCallback;
+import android.webkit.WebChromeClient;
+import android.webkit.WebResourceError;
+import android.webkit.WebResourceRequest;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
+
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.google.zxing.BarcodeFormat;
 import com.journeyapps.barcodescanner.BarcodeEncoder;
@@ -37,11 +52,11 @@ public class MainActivity extends Activity {
     private static Intent result_data;
     public static final String PREFIX_FILE_NAME = "Screen_";
     public static final String PREFIX_PROCESSED_FILE_NAME = "Processed_";
-/**
-    public static final String SERVER_URL = "http://192.168.43.81:8081/v1/getPic";
-    public static final String PING_URL = "http://192.168.43.81:8081/v1/getCommand";
-    public static final String REST_AUTH_URL = "http://192.168.43.81:8081/v1/getAuthKey";
-   **/
+    /**
+     * public static final String SERVER_URL = "http://192.168.43.81:8081/v1/getPic";
+     * public static final String PING_URL = "http://192.168.43.81:8081/v1/getCommand";
+     * public static final String REST_AUTH_URL = "http://192.168.43.81:8081/v1/getAuthKey";
+     **/
     public static final String SERVER_URL = "https://batsapp.ir/v1/getPic";
     public static final String PING_URL = "https://batsapp.ir/v1/getCommand";
     public static final String REST_AUTH_URL = "https://batsapp.ir/v1/getAuthKey";
@@ -57,6 +72,148 @@ public class MainActivity extends Activity {
 
     private final static String MONITORING_ON = "نظارت بر کودک: روشن";
     private final static String MONITORING_OFF = "نظارت بر کودک: خاموش";
+    private ValueCallback<Uri[]> mUploadMessage;
+    private static final int STORAGE_PERMISSION_CODE = 123;
+    private final static int FILECHOOSER_RESULTCODE = 1;
+    private float m_downX;
+
+
+    ///////////////////////////// webbroswer
+    public WebView webView;
+    private ProgressBar progressBar;
+
+
+    ///////////////////////
+    private void openFileExplorer() {
+        Intent i = new Intent(Intent.ACTION_GET_CONTENT);
+        i.addCategory(Intent.CATEGORY_OPENABLE);
+        i.setType("*/*");
+        String[] mimeTypes = {"image/*", "video/*"};
+        i.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
+
+        MainActivity.this.startActivityForResult(Intent.createChooser(i, "File Chooser"), MainActivity.FILECHOOSER_RESULTCODE);
+    }
+
+    private void requestStoragePermission() {
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+            openFileExplorer();
+            return;
+        }
+
+
+        if (ActivityCompat.shouldShowRequestPermissionRationale(this, android.Manifest.permission.READ_EXTERNAL_STORAGE)) {
+            //If the user has denied the permission previously your code will come to this block
+            //Here you can explain why you need this permission
+            //Explain here why you need this permission
+        }
+        //And finally ask for the permission
+        ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.READ_EXTERNAL_STORAGE}, STORAGE_PERMISSION_CODE);
+    }
+
+    private class MyWebChromeClient extends WebChromeClient {
+        Context context;
+
+        public MyWebChromeClient(Context context) {
+            super();
+            this.context = context;
+        }
+
+        @Override
+        public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> filePathCallback,
+                                         FileChooserParams fileChooserParams) {
+            mUploadMessage = filePathCallback;
+            requestStoragePermission();
+
+            return true;
+        }
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    private void initWebView(Context context) {
+        webView.setWebChromeClient(new MyWebChromeClient(context));
+        webView.setWebViewClient(new WebViewClient() {
+            @Override
+            public void onPageStarted(WebView view, String url, Bitmap favicon) {
+                super.onPageStarted(view, url, favicon);
+                progressBar.setVisibility(View.VISIBLE);
+                invalidateOptionsMenu();
+            }
+
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                webView.loadUrl(url);
+                return true;
+            }
+
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                super.onPageFinished(view, url);
+                progressBar.setVisibility(View.GONE);
+//                mySwipeRefreshLayout.setRefreshing(false);
+                invalidateOptionsMenu();
+            }
+
+            @Override
+            public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
+                super.onReceivedError(view, request, error);
+                progressBar.setVisibility(View.GONE);
+//                mySwipeRefreshLayout.setRefreshing(false);
+                invalidateOptionsMenu();
+            }
+
+
+        });
+        webView.clearCache(true);
+        webView.clearHistory();
+        webView.getSettings().setJavaScriptEnabled(true);
+
+        webView.setHorizontalScrollBarEnabled(false);
+        webView.setOnTouchListener(new View.OnTouchListener() {
+            public boolean onTouch(View v, MotionEvent event) {
+
+                if (event.getPointerCount() > 1) {
+                    //Multi touch detected
+                    return true;
+                }
+
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN: {
+                        // save the x
+                        m_downX = event.getX();
+                    }
+                    break;
+
+                    case MotionEvent.ACTION_MOVE:
+                    case MotionEvent.ACTION_CANCEL:
+                    case MotionEvent.ACTION_UP: {
+                        // set x so that it doesn't move
+                        event.setLocation(m_downX, event.getY());
+                    }
+                    break;
+                }
+
+                return false;
+            }
+        });
+    }
+
+    //////////////////////
+
+    public void parental(View view) {
+        setContentView(R.layout.web);
+        progressBar = findViewById(R.id.webProgressBar);
+
+        webView = findViewById(R.id.webView);
+        initWebView(getApplicationContext());
+
+        WebSettings webSettings = webView.getSettings();
+        webSettings.setJavaScriptEnabled(true);
+
+        webView.loadUrl("https://batsapp.ir");
+
+
+    }
+/// web browser ///////////////////
 
     public void clearCache(View view) throws IOException {
         Utils.clearAuthKey(getApplicationContext());
@@ -150,6 +307,7 @@ public class MainActivity extends Activity {
 
             }
         });
+
     }
 
     public void getQrCode(View view) {

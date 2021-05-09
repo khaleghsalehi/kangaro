@@ -5,12 +5,40 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_gravity="center"
+    android:layout_marginTop="10dp"
     android:orientation="vertical"
+
     tools:context=".MainActivity">
 
+    <Button
+        android:id="@+id/paretnal"
+        android:layout_width="320dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:background="@color/zxing_viewfinder_laser"
+        android:onClick="parental"
+        android:text="مشاهده فعالیت‌های کودک (والدین)"
+        android:textColor="@color/white"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintHorizontal_bias="0.755"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.841"
+        tools:ignore="OnClick" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="25dp"
+        android:layout_marginBottom="25dp"
+        android:background="@android:color/darker_gray" />
+
+
     <TextView
-        android:layout_width="88dp"
-        android:layout_height="61dp"
+
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:text="نام کاربری" />
 
@@ -21,8 +49,8 @@
         android:layout_gravity="center"></EditText>
 
     <TextView
-        android:layout_width="88dp"
-        android:layout_height="61dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:text="رمز عبور" />
 
@@ -86,43 +114,10 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:text="نظارت بر کودک: -----"
-
-            android:textSize="25dp">
+            android:textSize="20dp">
 
         </TextView>
     </LinearLayout>
-    <!--        <Button-->
-    <!--            android:id="@+id/stop"-->
-    <!--            android:layout_width="wrap_content"-->
-    <!--            android:layout_height="wrap_content"-->
-    <!--            android:onClick="stopProjection"-->
-    <!--            android:text="توقف"-->
-    <!--            app:layout_constraintBottom_toBottomOf="parent"-->
-    <!--            app:layout_constraintHorizontal_bias="0.34"-->
-    <!--            app:layout_constraintLeft_toLeftOf="parent"-->
-    <!--            app:layout_constraintRight_toRightOf="parent"-->
-    <!--            app:layout_constraintTop_toTopOf="parent"-->
-    <!--            app:layout_constraintVertical_bias="0.841" />-->
-
-    <!--        <Space-->
-    <!--            android:layout_width="20dp"-->
-    <!--            android:layout_height="match_parent" />-->
-
-    <!--        <Button-->
-    <!--            android:id="@+id/start"-->
-    <!--            android:layout_width="wrap_content"-->
-    <!--            android:layout_height="wrap_content"-->
-    <!--            android:onClick="startProjection"-->
-    <!--            android:text="شروع"-->
-    <!--            app:layout_constraintBottom_toBottomOf="parent"-->
-    <!--            app:layout_constraintHorizontal_bias="0.755"-->
-    <!--            app:layout_constraintLeft_toLeftOf="parent"-->
-    <!--            app:layout_constraintRight_toRightOf="parent"-->
-    <!--            app:layout_constraintTop_toTopOf="parent"-->
-    <!--            app:layout_constraintVertical_bias="0.841" />-->
-
-
-    <!--    </LinearLayout>-->
 
 
 </LinearLayout>
