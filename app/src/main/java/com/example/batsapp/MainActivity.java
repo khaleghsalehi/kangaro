@@ -37,13 +37,14 @@ public class MainActivity extends Activity {
     private static Intent result_data;
     public static final String PREFIX_FILE_NAME = "Screen_";
     public static final String PREFIX_PROCESSED_FILE_NAME = "Processed_";
-//    public static final String SERVER_URL = "http://171.22.27.125:8081/v1/getPic";
-//    public static final String PING_URL = "http://171.22.27.125:8081/v1/getCommand";
-//    public static final String REST_AUTH_URL = "http://171.22.27.125:8081/v1/getAuthKey";
-
+/**
     public static final String SERVER_URL = "http://192.168.43.81:8081/v1/getPic";
     public static final String PING_URL = "http://192.168.43.81:8081/v1/getCommand";
     public static final String REST_AUTH_URL = "http://192.168.43.81:8081/v1/getAuthKey";
+   **/
+    public static final String SERVER_URL = "https://batsapp.ir/v1/getPic";
+    public static final String PING_URL = "https://batsapp.ir/v1/getCommand";
+    public static final String REST_AUTH_URL = "https://batsapp.ir/v1/getAuthKey";
 
 
     public static String userName = "";
