@@ -30,9 +30,10 @@ public class UploadServiceManager extends TimerTask {
                                 String AUTH_INFO = "?uuid=" + MainActivity.authKey;
                                 String respose = Network.uploadServer(rootPath + fileName, UPLOAD_URL + AUTH_INFO);
                                 Log.i(TAG, "upload done");
-                                if (respose == "200") {
+                                if (respose.equals("200")) {
                                     String imagePath = rootPath + fileName;
                                     File srcFile = new File(imagePath);
+                                    //todo file already uploaded to server, delete processed file
                                     if (srcFile.renameTo(new File(imagePath + MainActivity.PREFIX_PROCESSED_FILE_NAME + fileName)))
                                         Log.d(TAG, "rename success, change file status.");
                                 }

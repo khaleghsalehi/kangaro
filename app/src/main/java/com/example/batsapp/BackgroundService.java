@@ -31,9 +31,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.Objects;
 
 public class BackgroundService extends Service {
+    private static final Date date = new Date();
 
     private static final String TAG = "batsapp";
     private static final String RESULT_CODE = "RESULT_CODE";
@@ -108,11 +110,12 @@ public class BackgroundService extends Service {
                     bitmap.copyPixelsFromBuffer(buffer);
 
                     // write bitmap to a file
-                    fos = new FileOutputStream(mStoreDir + "/" + MainActivity.PREFIX_FILE_NAME + IMAGES_PRODUCED + ".jpg");
+                    long now = date.getTime();
+                    fos = new FileOutputStream(mStoreDir + "/" + MainActivity.PREFIX_FILE_NAME + now + IMAGES_PRODUCED + ".jpg");
                     bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
 
                     IMAGES_PRODUCED++;
-                    Log.d(TAG, "captured image: " + IMAGES_PRODUCED + " in path " + mStoreDir);
+                    Log.d(TAG, "captured image: " + MainActivity.PREFIX_FILE_NAME + now + " in path " + mStoreDir);
                 }
 
             } catch (Exception e) {

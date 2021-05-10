@@ -48,6 +48,7 @@ import okhttp3.Response;
 public class MainActivity extends Activity {
     private static final int REQUEST_CODE = 100;
     private static final String TAG = "batsapp";
+    private static final String BATSAPP_VERSION_CODE = "0.03";
     private static int result_code = 0;
     private static Intent result_data;
     public static final String PREFIX_FILE_NAME = "Screen_";
@@ -77,6 +78,8 @@ public class MainActivity extends Activity {
     private final static int FILECHOOSER_RESULTCODE = 1;
     private float m_downX;
 
+    public MainActivity() {
+    }
 
     ///////////////////////////// webbroswer
     public WebView webView;
@@ -198,9 +201,21 @@ public class MainActivity extends Activity {
     }
 
     //////////////////////
+    public void getHelp(View view) {
+        setContentView(R.layout.paretpage);
+        progressBar = findViewById(R.id.webProgressBar);
+
+        webView = findViewById(R.id.webView);
+        initWebView(getApplicationContext());
+
+        WebSettings webSettings = webView.getSettings();
+        webSettings.setJavaScriptEnabled(true);
+        //webView.loadUrl("https://batsapp.ir/help");
+        webView.loadUrl("http://khalegh.net");
+    }
 
     public void parental(View view) {
-        setContentView(R.layout.web);
+        setContentView(R.layout.paretpage);
         progressBar = findViewById(R.id.webProgressBar);
 
         webView = findViewById(R.id.webView);
@@ -223,7 +238,16 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         Log.e(TAG, "starting batsapp...");
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        TextView version;
+        setContentView(R.layout.startpage);
+        version = findViewById(R.id.appVersion);
+        version.setTextSize(14);
+        version.setText("version " + BATSAPP_VERSION_CODE);
+    }
+
+    public void runParental(View view) {
+        Log.e(TAG, "starting batsapp...");
+        setContentView(R.layout.kidspage);
         TextView statusLabel = findViewById(R.id.status);
 
 
@@ -275,7 +299,7 @@ public class MainActivity extends Activity {
                                 if (!isRunning) {
                                     Log.d(TAG, "get START command");
                                     startRecording();
-                                    statusLabel.setText(MONITORING_ON);
+                                  //  statusLabel.setText(MONITORING_ON);
                                 } else {
                                     Log.d(TAG, "START command already executed.");
                                 }
@@ -283,7 +307,7 @@ public class MainActivity extends Activity {
                                 if (isRunning) {
                                     Log.d(TAG, "get STOP command");
                                     stopRecording();
-                                    statusLabel.setText(MONITORING_OFF);
+                                   // statusLabel.setText(MONITORING_OFF);
                                 } else {
                                     Log.d(TAG, "get STOP command but nothing to stop.");
                                 }
@@ -307,7 +331,6 @@ public class MainActivity extends Activity {
 
             }
         });
-
     }
 
     public void getQrCode(View view) {
