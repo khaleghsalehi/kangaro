@@ -112,7 +112,7 @@ public class BackgroundService extends Service {
                     // write bitmap to a file
                     long now = date.getTime();
                     fos = new FileOutputStream(mStoreDir + "/" + MainActivity.PREFIX_FILE_NAME + now + IMAGES_PRODUCED + ".jpg");
-                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, MainActivity.config.getImageQuality(), fos);
 
                     IMAGES_PRODUCED++;
                     Log.d(TAG, "captured image: " + MainActivity.PREFIX_FILE_NAME + now + " in path " + mStoreDir);
@@ -139,7 +139,7 @@ public class BackgroundService extends Service {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     Log.d(TAG, "sleep for 5 second -> " + LocalDateTime.now());
                 }
-                Thread.sleep(5_000);
+                Thread.sleep(MainActivity.config.getScreenShotDelay());
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

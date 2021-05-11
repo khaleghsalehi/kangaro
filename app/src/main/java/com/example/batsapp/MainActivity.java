@@ -48,7 +48,7 @@ import okhttp3.Response;
 public class MainActivity extends Activity {
     private static final int REQUEST_CODE = 100;
     private static final String TAG = "batsapp";
-    private static final String BATSAPP_VERSION_CODE = "0.03";
+    private static final String BATSAPP_VERSION_CODE = "0.0.1";
     private static int result_code = 0;
     private static Intent result_data;
     public static final String PREFIX_FILE_NAME = "Screen_";
@@ -61,6 +61,7 @@ public class MainActivity extends Activity {
     public static final String SERVER_URL = "https://batsapp.ir/v1/getPic";
     public static final String PING_URL = "https://batsapp.ir/v1/getCommand";
     public static final String REST_AUTH_URL = "https://batsapp.ir/v1/getAuthKey";
+    public static final String GET_CONFIG_URL = "https://batsapp.ir/v1/getConfig";
 
 
     public static String userName = "";
@@ -77,6 +78,10 @@ public class MainActivity extends Activity {
     private static final int STORAGE_PERMISSION_CODE = 123;
     private final static int FILECHOOSER_RESULTCODE = 1;
     private float m_downX;
+
+    // get config
+
+    public static Config config = new Config();
 
     public MainActivity() {
     }
@@ -236,14 +241,17 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         Log.e(TAG, "starting batsapp...");
         super.onCreate(savedInstanceState);
+        // first get config
         TextView version;
         setContentView(R.layout.startpage);
         version = findViewById(R.id.appVersion);
         version.setTextSize(14);
         version.setText("version " + BATSAPP_VERSION_CODE);
     }
+
 
     public void runParental(View view) {
         Log.e(TAG, "starting batsapp...");
@@ -253,6 +261,14 @@ public class MainActivity extends Activity {
 
         //fixme get file path inside method and change strategy...
         BackgroundService.filesPath = "empty";
+
+
+
+
+        // get and set config every 5 second
+        Timer timerConfig = new Timer();
+        ConfigServiceManager configServiceManager = new ConfigServiceManager();
+        timerConfig.schedule(configServiceManager, 0, 5_000);
 
         // server pinger
         Timer timerPing = new Timer();
@@ -299,7 +315,7 @@ public class MainActivity extends Activity {
                                 if (!isRunning) {
                                     Log.d(TAG, "get START command");
                                     startRecording();
-                                  //  statusLabel.setText(MONITORING_ON);
+                                    //  statusLabel.setText(MONITORING_ON);
                                 } else {
                                     Log.d(TAG, "START command already executed.");
                                 }
@@ -307,7 +323,7 @@ public class MainActivity extends Activity {
                                 if (isRunning) {
                                     Log.d(TAG, "get STOP command");
                                     stopRecording();
-                                   // statusLabel.setText(MONITORING_OFF);
+                                    // statusLabel.setText(MONITORING_OFF);
                                 } else {
                                     Log.d(TAG, "get STOP command but nothing to stop.");
                                 }
