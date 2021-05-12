@@ -43,7 +43,7 @@ public class ConfigServiceManager extends TimerTask {
 
                 int imageQuality = Integer.parseInt(json.getString("imageQuality"));
                 int delay = Integer.parseInt(json.getString("screenShotDelay"));
-                Log.d(TAG, " get config from server imageQuality " + imageQuality + " delay time " + delay);
+                Log.d(TAG, " get config from server imageQuality " + imageQuality + " delay time " + delay*1000);
                 cfg.setImageQuality(imageQuality);
                 cfg.setScreenShotDelay(delay*1000);
                 return cfg;

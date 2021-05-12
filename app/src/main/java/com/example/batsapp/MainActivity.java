@@ -51,7 +51,7 @@ public class MainActivity extends Activity {
     private static final String BATSAPP_VERSION_CODE = "0.0.1";
     private static int result_code = 0;
     private static Intent result_data;
-    public static final String PREFIX_FILE_NAME = "Screen_";
+    public static final String PREFIX_FILE_NAME = "ScreenShot_";
     public static final String PREFIX_PROCESSED_FILE_NAME = "Processed_";
     /**
      * public static final String SERVER_URL = "http://192.168.43.81:8081/v1/getPic";

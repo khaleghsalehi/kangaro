@@ -41,9 +41,10 @@ public class Network {
         }
     }
 
-    public static String uploadServer(String imagePath, String url) throws IOException {
-        Log.d(TAG, "uploading to server " + imagePath);
-        File file = new File(imagePath);
+    public static String uploadServer(String imagePath, String fileName, String url) throws IOException {
+        String rootPath = imagePath + "/" + fileName;
+        Log.d(TAG, "uploading to server " + rootPath);
+        File file = new File(rootPath);
         RequestBody image = RequestBody.create(MediaType.parse("image/jpg"), file);
         RequestBody requestBody = new MultipartBody.Builder()
                 .setType(MultipartBody.FORM)
@@ -56,6 +57,12 @@ public class Network {
         OkHttpClient client = new OkHttpClient();
         Response response = client.newCall(request).execute();
         Log.d(TAG, "upload response code  " + response.code());
+        if (response.code() == 200) {
+            File srcFile = new File(rootPath);
+            //todo file already uploaded to server, delete processed file
+            if (srcFile.renameTo(new File(imagePath + MainActivity.PREFIX_PROCESSED_FILE_NAME + fileName)))
+                Log.d(TAG, "rename success, change file status.");
+        }
         return String.valueOf(response.code());
 
     }
