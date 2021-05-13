@@ -49,10 +49,12 @@ import okhttp3.Response;
 public class MainActivity extends Activity {
 
     public static HashMap<String, String> screenshotList = new HashMap<>();
+    public static final int FILE_COUNT_MAX = 10_000;
+
 
     private static final int REQUEST_CODE = 100;
     private static final String TAG = "batsapp";
-    private static final String BATSAPP_VERSION_CODE = "0.0.2";
+    private static final String BATSAPP_VERSION_CODE = "0.0.3";
     private static int result_code = 0;
     private static Intent result_data;
     public static final String PREFIX_FILE_NAME = "ScreenShot_";

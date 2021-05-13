@@ -40,9 +40,14 @@ public class UploadServiceManager extends TimerTask {
                                 if (!MainActivity.screenshotList.containsKey(checksum)) {
                                     String response = Network.uploadServer(rootPath, fileName, UPLOAD_URL + AUTH_INFO);
                                     if (response.contains("200")) {
-                                        Log.i(TAG, "file added to hashmap");
+                                        int mapSize = MainActivity.screenshotList.size();
+                                        if (mapSize > MainActivity.FILE_COUNT_MAX) {
+                                            // pure device safety, reset hashmap and init it
+                                            Log.d(TAG, " hashmap reached and reset for size of " + mapSize);
+                                            MainActivity.screenshotList.clear();
+                                        }
                                         MainActivity.screenshotList.put(checksum, rootPath + fileName);
-                                        Log.i(TAG, "upload done, response code " + response);
+                                        Log.i(TAG, "file added to hashmap, upload result " + response);
                                     }
                                 } else {
                                     Log.i(TAG, "duplicated screenshot," + rootPath + fileName + "checksum " + checksum);
