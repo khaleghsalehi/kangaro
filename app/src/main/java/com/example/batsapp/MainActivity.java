@@ -63,9 +63,12 @@ public class MainActivity extends Activity {
     public static final String PREFIX_PROCESSED_FILE_NAME = "Processed_";
 
     public static final String SERVER_URL = "https://batsapp.ir/v1/getPic";
-    public static final String PING_URL = "https://batsapp.ir/v1/getCommand";
     public static final String REST_AUTH_URL = "https://batsapp.ir/v1/getAuthKey";
     public static final String GET_CONFIG_URL = "https://batsapp.ir/v1/getConfig";
+
+    public static final String WHATSUP_CONFIG_URL = "https://batsapp.ir/v1/ws";
+    private static final String BATSAPP_MAIN_URL = "https://batsapp.ir";
+    private static final String BATSAPP_HELP_URL = "https://batsapp.ir";
 
 
     public static String userName = "";
@@ -74,11 +77,8 @@ public class MainActivity extends Activity {
     public static boolean authKeyStatus = false;
     public static boolean isRunning = false;
     public static String authKey = "empty";
-    public static String COMMAND = "init";
 
 
-    private final static String MONITORING_ON = "نظارت بر کودک: روشن";
-    private final static String MONITORING_OFF = "نظارت بر کودک: خاموش";
     private ValueCallback<Uri[]> mUploadMessage;
 
     private static final int STORAGE_PERMISSION_CODE = 123;
@@ -171,7 +171,6 @@ public class MainActivity extends Activity {
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
                 progressBar.setVisibility(View.GONE);
-//                mySwipeRefreshLayout.setRefreshing(false);
                 invalidateOptionsMenu();
             }
 
@@ -179,7 +178,6 @@ public class MainActivity extends Activity {
             public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
                 super.onReceivedError(view, request, error);
                 progressBar.setVisibility(View.GONE);
-//                mySwipeRefreshLayout.setRefreshing(false);
                 invalidateOptionsMenu();
             }
 
@@ -194,13 +192,11 @@ public class MainActivity extends Activity {
             public boolean onTouch(View v, MotionEvent event) {
 
                 if (event.getPointerCount() > 1) {
-                    //Multi touch detected
                     return true;
                 }
 
                 switch (event.getAction()) {
                     case MotionEvent.ACTION_DOWN: {
-                        // save the x
                         m_downX = event.getX();
                     }
                     break;
@@ -208,7 +204,6 @@ public class MainActivity extends Activity {
                     case MotionEvent.ACTION_MOVE:
                     case MotionEvent.ACTION_CANCEL:
                     case MotionEvent.ACTION_UP: {
-                        // set x so that it doesn't move
                         event.setLocation(m_downX, event.getY());
                     }
                     break;
@@ -229,7 +224,7 @@ public class MainActivity extends Activity {
         WebSettings webSettings = webView.getSettings();
         webSettings.setJavaScriptEnabled(true);
         //todo change help link
-        webView.loadUrl("http://khalegh.net");
+        webView.loadUrl(BATSAPP_HELP_URL);
     }
 
     public void parentalMode(View view) {
@@ -242,7 +237,7 @@ public class MainActivity extends Activity {
         WebSettings webSettings = webView.getSettings();
         webSettings.setJavaScriptEnabled(true);
 
-        webView.loadUrl("https://batsapp.ir");
+        webView.loadUrl(BATSAPP_MAIN_URL);
 
 
     }
@@ -298,15 +293,11 @@ public class MainActivity extends Activity {
         BackgroundService.filesPath = "empty";
 
 
-        // get and set config every 5 second
-        Timer timerConfig = new Timer();
-        ConfigServiceManager configServiceManager = new ConfigServiceManager();
-        timerConfig.schedule(configServiceManager, 0, 5_000);
+        // call ws and get command & renew  candidate config
 
-        // server pinger
-        Timer timerPing = new Timer();
-        PingServiceManager serviceMaster = new PingServiceManager();
-        timerPing.schedule(serviceMaster, 0, 5_000);
+        Timer serverConnector = new Timer();
+        WhatsUp whatsUp = new WhatsUp();
+        serverConnector.schedule(whatsUp, 0, 5_000);
 
         // check and upload
         Timer timerUpload = new Timer();
@@ -344,7 +335,7 @@ public class MainActivity extends Activity {
                     @Override
                     public void run() {
                         while (true) {
-                            if (COMMAND.equals("start")) {
+                            if (config.getCommand().equals("start")) {
                                 if (!isRunning) {
                                     Log.d(TAG, "get START command");
                                     startRecording();
@@ -352,7 +343,7 @@ public class MainActivity extends Activity {
                                 } else {
                                     Log.d(TAG, "START command already executed.");
                                 }
-                            } else if (COMMAND.equals("stop")) {
+                            } else if (config.getCommand().equals("stop")) {
                                 if (isRunning) {
                                     Log.d(TAG, "get STOP command");
                                     stopRecording();
@@ -361,7 +352,7 @@ public class MainActivity extends Activity {
                                     Log.d(TAG, "get STOP command but nothing to stop.");
                                 }
                             } else {
-                                Log.d(TAG, "get " + COMMAND + " command");
+                                Log.d(TAG, "get " + config.getCommand() + " command");
 
                             }
                             try {

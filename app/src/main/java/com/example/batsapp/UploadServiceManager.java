@@ -17,7 +17,7 @@ public class UploadServiceManager extends TimerTask {
 
     @Override
     public void run() {
-        if (MainActivity.COMMAND.equals("start")) {
+        if (MainActivity.config.getCommand().equals("start")) {
             if (!BackgroundService.filesPath.equals("empty")) { // yup upload it
                 Log.d(TAG, "checking and uploading new files.");
                 String rootPath = BackgroundService.filesPath;

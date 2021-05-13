@@ -12,51 +12,50 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-public class ConfigServiceManager extends TimerTask {
+public class WhatsUp extends TimerTask {
     private static final String TAG = "batsapp";
 
     @Override
     public void run() {
-        Log.i(TAG, "try to get new config...");
-        MainActivity.config = getConfig();
+        Log.i(TAG, "call whatsup API and get response");
 
+        getConfig();
     }
 
-    private Config getConfig() {
-        Config cfg = new Config();
-        String configJson = null;
+    private void getConfig() {
+        String resultJson = null;
         OkHttpClient okHttpClient = new OkHttpClient();
         Request request = new Request.Builder()
-                .url(MainActivity.GET_CONFIG_URL + "?uuid=" + MainActivity.authKey)
+                .url(MainActivity.WHATSUP_CONFIG_URL + "?uuid=" + MainActivity.authKey)
                 .build();
 
         try (Response response = okHttpClient.newCall(request).execute()) {
             if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
-            configJson = Objects.requireNonNull(response.body()).string();
+            resultJson = Objects.requireNonNull(response.body()).string();
         } catch (IOException e) {
             e.printStackTrace();
         }
 
         try {
-            if (configJson != null) {
-                JSONObject json = new JSONObject(configJson);
+            if (resultJson != null) {
+                JSONObject json = new JSONObject(resultJson);
 
                 int imageQuality = Integer.parseInt(json.getString("imageQuality"));
                 int delay = Integer.parseInt(json.getString("screenShotDelay"));
                 String command = json.getString("command");
-                Log.d(TAG, " get config from server imageQuality " + imageQuality
-                        + " delay time " + delay * 1000
-                        + "comamnd " + command);
-                cfg.setImageQuality(imageQuality);
-                cfg.setScreenShotDelay(delay * 1000);
-                cfg.setCommand(command);
-                return cfg;
+
+                Log.d(TAG, "parsing json, imageQuality: " + imageQuality +
+                        "screenShotDelay:  " + delay * 1000 +
+                        "command:  " + command);
+                //todo check before assignment?
+                MainActivity.config.setImageQuality(imageQuality);
+                MainActivity.config.setScreenShotDelay(delay * 1000);
+                MainActivity.config.setCommand(command);
             }
         } catch (Exception e) {
             e.printStackTrace();
-            Log.e(TAG, "Ooopsss! exception while setting config, return defualt");
+            Log.e(TAG, "Oops! exception while setting config, return defualt");
         }
-        return cfg;
     }
 
 }

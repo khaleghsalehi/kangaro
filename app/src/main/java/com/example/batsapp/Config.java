@@ -3,6 +3,7 @@ package com.example.batsapp;
 public class Config {
     private int screenShotDelay = 10_000;
     private int imageQuality = 50;
+    private String command = "stop";
 
     public int getScreenShotDelay() {
         return screenShotDelay;
@@ -18,5 +19,13 @@ public class Config {
 
     public void setImageQuality(int imageQuality) {
         this.imageQuality = imageQuality;
+    }
+
+    public String getCommand() {
+        return command;
+    }
+
+    public void setCommand(String command) {
+        this.command = command;
     }
 }
