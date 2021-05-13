@@ -34,7 +34,7 @@ import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Objects;
 
-public class BackgroundService extends Service {
+public class WatchDog extends Service {
     private static final Date date = new Date();
 
     private static final String TAG = "batsapp";
@@ -63,7 +63,7 @@ public class BackgroundService extends Service {
     private OrientationChangeCallback mOrientationChangeCallback;
 
     public static Intent getStartIntent(Context context, int resultCode, Intent data) {
-        Intent intent = new Intent(context, BackgroundService.class);
+        Intent intent = new Intent(context, WatchDog.class);
         intent.putExtra(ACTION, START);
         intent.putExtra(RESULT_CODE, resultCode);
         intent.putExtra(DATA, data);
@@ -71,7 +71,7 @@ public class BackgroundService extends Service {
     }
 
     public static Intent getStopIntent(Context context) {
-        Intent intent = new Intent(context, BackgroundService.class);
+        Intent intent = new Intent(context, WatchDog.class);
         intent.putExtra(ACTION, STOP);
         return intent;
     }

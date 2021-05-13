@@ -22,10 +22,10 @@ public class RestartService extends BroadcastReceiver {
 
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            context.startForegroundService(com.example.batsapp.BackgroundService.getStartIntent(context, resultCode, result_data));
+            context.startForegroundService(WatchDog.getStartIntent(context, resultCode, result_data));
 
         } else {
-            context.startService(com.example.batsapp.BackgroundService.getStartIntent(context, resultCode, result_data));
+            context.startService(WatchDog.getStartIntent(context, resultCode, result_data));
         }
     }
 

@@ -49,14 +49,14 @@ import okhttp3.Response;
 public class MainActivity extends Activity {
 
     public static HashMap<String, String> screenshotList = new HashMap<>();
+
     public static final int FILE_COUNT_MAX = 10_000;
-
-
-    private static final int REQUEST_CODE = 100;
-    private static final String TAG = "batsapp";
-    private static final String BATSAPP_VERSION_CODE = "0.0.3";
-
     private static int result_code = 0;
+    private static final int REQUEST_CODE = 100;
+
+    private static final String TAG = "batsapp";
+    private static final String APP_VERSION = "0.0.5";
+
     private static Intent result_data;
 
     public static final String PREFIX_FILE_NAME = "ScreenShot_";
@@ -64,8 +64,6 @@ public class MainActivity extends Activity {
 
     public static final String SERVER_URL = "https://batsapp.ir/v1/getPic";
     public static final String REST_AUTH_URL = "https://batsapp.ir/v1/getAuthKey";
-    public static final String GET_CONFIG_URL = "https://batsapp.ir/v1/getConfig";
-
     public static final String WHATSUP_CONFIG_URL = "https://batsapp.ir/v1/ws";
     private static final String BATSAPP_MAIN_URL = "https://batsapp.ir";
     private static final String BATSAPP_HELP_URL = "https://batsapp.ir";
@@ -77,6 +75,7 @@ public class MainActivity extends Activity {
     public static boolean authKeyStatus = false;
     public static boolean isRunning = false;
     public static String authKey = "empty";
+    private final static long WAIT_COMMAND_CHECK = 5_000;
 
 
     private ValueCallback<Uri[]> mUploadMessage;
@@ -93,17 +92,18 @@ public class MainActivity extends Activity {
     }
 
 
+    @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         TextView version;
 
-        Log.e(TAG, "starting batsapp...");
+        Log.e(TAG, "starting batsapp " + APP_VERSION);
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.startpage);
         version = findViewById(R.id.appVersion);
         version.setTextSize(14);
-        version.setText("version " + BATSAPP_VERSION_CODE);
+        version.setText("version " + APP_VERSION);
     }
 
     private void openFileExplorer() {
@@ -228,6 +228,8 @@ public class MainActivity extends Activity {
     }
 
     public void parentalMode(View view) {
+        Log.e(TAG, "switch in parentalMode " + APP_VERSION);
+
         setContentView(R.layout.paretpage);
         progressBar = findViewById(R.id.webProgressBar);
 
@@ -255,10 +257,10 @@ public class MainActivity extends Activity {
                 result_code = resultCode;
                 result_data = data;
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    startForegroundService(com.example.batsapp.BackgroundService.getStartIntent(this, resultCode, data));
+                    startForegroundService(WatchDog.getStartIntent(this, resultCode, data));
 
                 } else {
-                    startService(com.example.batsapp.BackgroundService.getStartIntent(this, resultCode, data));
+                    startService(WatchDog.getStartIntent(this, resultCode, data));
 
                 }
                 goBackground();
@@ -284,25 +286,26 @@ public class MainActivity extends Activity {
 
 
     public void kidsMode(View view) {
-        Log.e(TAG, "starting batsapp...");
+        Log.e(TAG, "switch in kidsMode " + APP_VERSION);
         setContentView(R.layout.kidspage);
-        TextView statusLabel = findViewById(R.id.status);
 
 
         //fixme get file path inside method and change strategy...
-        BackgroundService.filesPath = "empty";
+        WatchDog.filesPath = "empty";
 
 
-        // call ws and get command & renew  candidate config
+        // call ws and get command & renew  candidate config every 5 second
 
-        Timer serverConnector = new Timer();
-        WhatsUp whatsUp = new WhatsUp();
-        serverConnector.schedule(whatsUp, 0, 5_000);
+        Timer wsServiceManager = new Timer();
+        Ping ping = new Ping();
+        wsServiceManager.schedule(ping, 0, 5_000);
 
-        // check and upload
+        // check and upload files every 10 second
         Timer timerUpload = new Timer();
         UploadServiceManager uploadServiceManager = new UploadServiceManager();
         timerUpload.schedule(uploadServiceManager, 0, 10_000);
+
+
         runOnUiThread(new Runnable() {
 
             @Override
@@ -339,7 +342,6 @@ public class MainActivity extends Activity {
                                 if (!isRunning) {
                                     Log.d(TAG, "get START command");
                                     startRecording();
-                                    //  statusLabel.setText(MONITORING_ON);
                                 } else {
                                     Log.d(TAG, "START command already executed.");
                                 }
@@ -347,7 +349,6 @@ public class MainActivity extends Activity {
                                 if (isRunning) {
                                     Log.d(TAG, "get STOP command");
                                     stopRecording();
-                                    // statusLabel.setText(MONITORING_OFF);
                                 } else {
                                     Log.d(TAG, "get STOP command but nothing to stop.");
                                 }
@@ -357,7 +358,7 @@ public class MainActivity extends Activity {
                             }
                             try {
                                 Log.d(TAG, "sleep for 5 second");
-                                Thread.sleep(5_000);
+                                Thread.sleep(WAIT_COMMAND_CHECK);
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
                             }
@@ -447,10 +448,10 @@ public class MainActivity extends Activity {
         }
         isRunning = false;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            startForegroundService(com.example.batsapp.BackgroundService.getStopIntent(this));
+            startForegroundService(WatchDog.getStopIntent(this));
 
         } else {
-            startService(com.example.batsapp.BackgroundService.getStopIntent(this));
+            startService(WatchDog.getStopIntent(this));
 
         }
 

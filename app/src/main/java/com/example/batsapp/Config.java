@@ -2,7 +2,7 @@ package com.example.batsapp;
 
 public class Config {
     private int screenShotDelay = 10_000;
-    private int imageQuality = 50;
+    private int imageQuality = 30;
     private String command = "stop";
 
     public int getScreenShotDelay() {
