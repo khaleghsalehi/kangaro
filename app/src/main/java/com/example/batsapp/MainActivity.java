@@ -34,6 +34,7 @@ import com.journeyapps.barcodescanner.BarcodeEncoder;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Objects;
 import java.util.Timer;
 import java.util.concurrent.ExecutorService;
@@ -46,18 +47,17 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 public class MainActivity extends Activity {
+
+    public static HashMap<String, String> screenshotList = new HashMap<>();
+
     private static final int REQUEST_CODE = 100;
     private static final String TAG = "batsapp";
-    private static final String BATSAPP_VERSION_CODE = "0.0.1";
+    private static final String BATSAPP_VERSION_CODE = "0.0.2";
     private static int result_code = 0;
     private static Intent result_data;
     public static final String PREFIX_FILE_NAME = "ScreenShot_";
     public static final String PREFIX_PROCESSED_FILE_NAME = "Processed_";
-    /**
-     * public static final String SERVER_URL = "http://192.168.43.81:8081/v1/getPic";
-     * public static final String PING_URL = "http://192.168.43.81:8081/v1/getCommand";
-     * public static final String REST_AUTH_URL = "http://192.168.43.81:8081/v1/getAuthKey";
-     **/
+
     public static final String SERVER_URL = "https://batsapp.ir/v1/getPic";
     public static final String PING_URL = "https://batsapp.ir/v1/getCommand";
     public static final String REST_AUTH_URL = "https://batsapp.ir/v1/getAuthKey";
@@ -86,12 +86,10 @@ public class MainActivity extends Activity {
     public MainActivity() {
     }
 
-    ///////////////////////////// webbroswer
     public WebView webView;
     private ProgressBar progressBar;
 
 
-    ///////////////////////
     private void openFileExplorer() {
         Intent i = new Intent(Intent.ACTION_GET_CONTENT);
         i.addCategory(Intent.CATEGORY_OPENABLE);
@@ -205,7 +203,6 @@ public class MainActivity extends Activity {
         });
     }
 
-    //////////////////////
     public void getHelp(View view) {
         setContentView(R.layout.paretpage);
         progressBar = findViewById(R.id.webProgressBar);
@@ -215,7 +212,7 @@ public class MainActivity extends Activity {
 
         WebSettings webSettings = webView.getSettings();
         webSettings.setJavaScriptEnabled(true);
-        //webView.loadUrl("https://batsapp.ir/help");
+        //todo change help link
         webView.loadUrl("http://khalegh.net");
     }
 
@@ -261,8 +258,6 @@ public class MainActivity extends Activity {
 
         //fixme get file path inside method and change strategy...
         BackgroundService.filesPath = "empty";
-
-
 
 
         // get and set config every 5 second
@@ -421,20 +416,6 @@ public class MainActivity extends Activity {
         }
     }
 
-
-    public void startProjection(View v) {
-        if (isRunning) {
-            Log.d(TAG, "service already recording screen...");
-            return;
-        }
-        isRunning = true;
-        MediaProjectionManager mProjectionManager =
-                (MediaProjectionManager) getSystemService(Context.MEDIA_PROJECTION_SERVICE);
-        startActivityForResult(mProjectionManager.createScreenCaptureIntent(), REQUEST_CODE);
-
-
-    }
-
     public void startRecording() {
         if (isRunning) {
             Log.d(TAG, "service already recording screen...");
@@ -463,21 +444,6 @@ public class MainActivity extends Activity {
 
         }
 
-    }
-
-    public void stopProjection(View v) {
-        if (!isRunning) {
-            Log.d(TAG, "return , there is not active running");
-            return;
-        }
-        isRunning = false;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            startForegroundService(com.example.batsapp.BackgroundService.getStopIntent(this));
-
-        } else {
-            startService(com.example.batsapp.BackgroundService.getStopIntent(this));
-
-        }
     }
 
 

@@ -111,11 +111,12 @@ public class BackgroundService extends Service {
 
                     // write bitmap to a file
                     long now = date.getTime();
-                    fos = new FileOutputStream(mStoreDir + "/" + MainActivity.PREFIX_FILE_NAME + now + IMAGES_PRODUCED + ".jpg");
+                    String fullFileName = mStoreDir + "/" + MainActivity.PREFIX_FILE_NAME + now + IMAGES_PRODUCED + ".jpg";
+                    fos = new FileOutputStream(fullFileName);
                     bitmap.compress(Bitmap.CompressFormat.JPEG, MainActivity.config.getImageQuality(), fos);
 
                     IMAGES_PRODUCED++;
-                    Log.d(TAG, "captured image: " + MainActivity.PREFIX_FILE_NAME + now + " in path " + mStoreDir);
+                    Log.d(TAG, "captured image: " + fullFileName);
                 }
 
             } catch (Exception e) {

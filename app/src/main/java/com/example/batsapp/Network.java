@@ -1,9 +1,12 @@
 package com.example.batsapp;
 
+import android.os.Build;
 import android.util.Log;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Objects;
 
 import okhttp3.MediaType;
@@ -60,8 +63,17 @@ public class Network {
         if (response.code() == 200) {
             File srcFile = new File(rootPath);
             //todo file already uploaded to server, delete processed file
-            if (srcFile.renameTo(new File(imagePath + MainActivity.PREFIX_PROCESSED_FILE_NAME + fileName)))
-                Log.d(TAG, "rename success, change file status.");
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                if (Files.deleteIfExists(Paths.get(imagePath + fileName)))
+                    Log.i(TAG, "uploaded file cleanup from device");
+            } else {
+                Log.i(TAG, "error while cleanup uploaded file ");
+                String newName = imagePath + MainActivity.PREFIX_PROCESSED_FILE_NAME + fileName;
+                if (srcFile.renameTo(new File(newName)))
+                    Log.d(TAG, "uploaded file renamed success.");
+                else
+                    Log.e(TAG, "error while removing or renaming, == something is wrong ===");
+            }
         }
         return String.valueOf(response.code());
 
