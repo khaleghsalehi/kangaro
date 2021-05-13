@@ -55,8 +55,10 @@ public class MainActivity extends Activity {
     private static final int REQUEST_CODE = 100;
     private static final String TAG = "batsapp";
     private static final String BATSAPP_VERSION_CODE = "0.0.3";
+
     private static int result_code = 0;
     private static Intent result_data;
+
     public static final String PREFIX_FILE_NAME = "ScreenShot_";
     public static final String PREFIX_PROCESSED_FILE_NAME = "Processed_";
 
@@ -68,6 +70,7 @@ public class MainActivity extends Activity {
 
     public static String userName = "";
     public static String password = "";
+
     public static boolean authKeyStatus = false;
     public static boolean isRunning = false;
     public static String authKey = "empty";
@@ -77,20 +80,31 @@ public class MainActivity extends Activity {
     private final static String MONITORING_ON = "نظارت بر کودک: روشن";
     private final static String MONITORING_OFF = "نظارت بر کودک: خاموش";
     private ValueCallback<Uri[]> mUploadMessage;
+
     private static final int STORAGE_PERMISSION_CODE = 123;
     private final static int FILECHOOSER_RESULTCODE = 1;
+
     private float m_downX;
-
-    // get config
-
     public static Config config = new Config();
+    public WebView webView;
+    private ProgressBar progressBar;
 
     public MainActivity() {
     }
 
-    public WebView webView;
-    private ProgressBar progressBar;
 
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        TextView version;
+
+        Log.e(TAG, "starting batsapp...");
+        super.onCreate(savedInstanceState);
+
+        setContentView(R.layout.startpage);
+        version = findViewById(R.id.appVersion);
+        version.setTextSize(14);
+        version.setText("version " + BATSAPP_VERSION_CODE);
+    }
 
     private void openFileExplorer() {
         Intent i = new Intent(Intent.ACTION_GET_CONTENT);
@@ -218,7 +232,7 @@ public class MainActivity extends Activity {
         webView.loadUrl("http://khalegh.net");
     }
 
-    public void parental(View view) {
+    public void parentalMode(View view) {
         setContentView(R.layout.paretpage);
         progressBar = findViewById(R.id.webProgressBar);
 
@@ -232,27 +246,49 @@ public class MainActivity extends Activity {
 
 
     }
-/// web browser ///////////////////
 
     public void clearCache(View view) throws IOException {
         Utils.clearAuthKey(getApplicationContext());
     }
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
 
-        Log.e(TAG, "starting batsapp...");
-        super.onCreate(savedInstanceState);
-        // first get config
-        TextView version;
-        setContentView(R.layout.startpage);
-        version = findViewById(R.id.appVersion);
-        version.setTextSize(14);
-        version.setText("version " + BATSAPP_VERSION_CODE);
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_CODE) {
+            if (resultCode == Activity.RESULT_OK) {
+
+                result_code = resultCode;
+                result_data = data;
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    startForegroundService(com.example.batsapp.BackgroundService.getStartIntent(this, resultCode, data));
+
+                } else {
+                    startService(com.example.batsapp.BackgroundService.getStartIntent(this, resultCode, data));
+
+                }
+                goBackground();
+            }
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        //stopService(mServiceIntent);
+
+//fixme why I disabled below line and it's working well?
+
+
+//        Intent broadcastIntent = new Intent();
+//        broadcastIntent.putExtra("resultCode", result_code);
+//        broadcastIntent.putExtras(result_data);
+//        broadcastIntent.setAction("restartservice");
+//        broadcastIntent.setClass(this, RestartService.class);
+//        this.sendBroadcast(broadcastIntent);
+        super.onDestroy();
     }
 
 
-    public void runParental(View view) {
+    public void kidsMode(View view) {
         Log.e(TAG, "starting batsapp...");
         setContentView(R.layout.kidspage);
         TextView statusLabel = findViewById(R.id.status);
@@ -399,25 +435,6 @@ public class MainActivity extends Activity {
     }
 
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == REQUEST_CODE) {
-            if (resultCode == Activity.RESULT_OK) {
-
-                result_code = resultCode;
-                result_data = data;
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    startForegroundService(com.example.batsapp.BackgroundService.getStartIntent(this, resultCode, data));
-
-                } else {
-                    startService(com.example.batsapp.BackgroundService.getStartIntent(this, resultCode, data));
-
-                }
-                goBackground();
-            }
-        }
-    }
-
     public void startRecording() {
         if (isRunning) {
             Log.d(TAG, "service already recording screen...");
@@ -446,23 +463,6 @@ public class MainActivity extends Activity {
 
         }
 
-    }
-
-
-    @Override
-    protected void onDestroy() {
-        //stopService(mServiceIntent);
-
-//fixme why I disabled below line and it's working well?
-
-
-//        Intent broadcastIntent = new Intent();
-//        broadcastIntent.putExtra("resultCode", result_code);
-//        broadcastIntent.putExtras(result_data);
-//        broadcastIntent.setAction("restartservice");
-//        broadcastIntent.setClass(this, RestartService.class);
-//        this.sendBroadcast(broadcastIntent);
-        super.onDestroy();
     }
 
     protected void goBackground() {
