@@ -55,12 +55,18 @@ public class MainActivity extends Activity {
     private static final int REQUEST_CODE = 100;
 
     private static final String TAG = "batsapp";
-    private static final String APP_VERSION = "0.0.5";
+    private static final String APP_VERSION = "0.0.6";
 
     private static Intent result_data;
 
     public static final String PREFIX_FILE_NAME = "ScreenShot_";
     public static final String PREFIX_PROCESSED_FILE_NAME = "Processed_";
+
+//    public static final String SERVER_URL = "http://192.168.43.81:8081/v1/getPic";
+//    public static final String REST_AUTH_URL = "http://192.168.43.81:8081/v1/getAuthKey";
+//    public static final String WHATSUP_CONFIG_URL = "http://192.168.43.81:8081/v1/ws";
+//    private static final String BATSAPP_MAIN_URL = "http://192.168.43.81:8081";
+//    private static final String BATSAPP_HELP_URL = "http://192.168.43.81:8081";
 
     public static final String SERVER_URL = "https://batsapp.ir/v1/getPic";
     public static final String REST_AUTH_URL = "https://batsapp.ir/v1/getAuthKey";

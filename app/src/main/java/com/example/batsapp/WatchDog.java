@@ -111,7 +111,7 @@ public class WatchDog extends Service {
 
                     // write bitmap to a file
                     long now = date.getTime();
-                    String fullFileName = mStoreDir + "/" + MainActivity.PREFIX_FILE_NAME + now + IMAGES_PRODUCED + ".jpg";
+                    String fullFileName = mStoreDir + "/" + MainActivity.PREFIX_FILE_NAME+ IMAGES_PRODUCED+"_" + now  + ".jpg";
                     fos = new FileOutputStream(fullFileName);
                     bitmap.compress(Bitmap.CompressFormat.JPEG, MainActivity.config.getImageQuality(), fos);
 

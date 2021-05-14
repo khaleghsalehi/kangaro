@@ -15,6 +15,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.MyApplication">
+        <!--        android:usesCleartextTraffic="true">-->
 
         <receiver
             android:name="com.example.batsapp.RestartService"
@@ -27,8 +28,7 @@
 
         <activity
             android:name="com.example.batsapp.MainActivity"
-            android:foregroundServiceType="mediaProjection"
-            >
+            android:foregroundServiceType="mediaProjection">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -41,8 +41,8 @@
             android:name="com.example.batsapp.WatchDog"
             android:enabled="true"
             android:exported="true"
-            android:stopWithTask="true"
-            android:foregroundServiceType="mediaProjection" />
+            android:foregroundServiceType="mediaProjection"
+            android:stopWithTask="true" />
 
 
     </application>
