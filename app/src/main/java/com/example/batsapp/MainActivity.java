@@ -87,7 +87,7 @@ public class MainActivity extends Activity {
     private ValueCallback<Uri[]> mUploadMessage;
 
     private static final int STORAGE_PERMISSION_CODE = 123;
-    private final static int FILECHOOSER_RESULTCODE = 1;
+    private final static int FILE_CHOOSER_RESULT_CODE = 1;
 
     private float m_downX;
     public static Config config = new Config();
@@ -119,7 +119,7 @@ public class MainActivity extends Activity {
         String[] mimeTypes = {"image/*", "video/*"};
         i.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
 
-        MainActivity.this.startActivityForResult(Intent.createChooser(i, "File Chooser"), MainActivity.FILECHOOSER_RESULTCODE);
+        MainActivity.this.startActivityForResult(Intent.createChooser(i, "File Chooser"), MainActivity.FILE_CHOOSER_RESULT_CODE);
     }
 
     private void requestStoragePermission() {

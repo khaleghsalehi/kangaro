@@ -30,7 +30,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Objects;
 
@@ -77,16 +76,21 @@ public class WatchDog extends Service {
     }
 
     private static boolean isStartCommand(Intent intent) {
-        return intent.hasExtra(RESULT_CODE) && intent.hasExtra(DATA)
-                && intent.hasExtra(ACTION) && Objects.equals(intent.getStringExtra(ACTION), START);
+        return intent.hasExtra(RESULT_CODE) &&
+                intent.hasExtra(DATA) &&
+                intent.hasExtra(ACTION) &&
+                Objects.equals(intent.getStringExtra(ACTION), START);
     }
 
     private static boolean isStopCommand(Intent intent) {
-        return intent.hasExtra(ACTION) && Objects.equals(intent.getStringExtra(ACTION), STOP);
+        return intent.hasExtra(ACTION) &&
+                Objects.equals(intent.getStringExtra(ACTION), STOP);
     }
 
     private static int getVirtualDisplayFlags() {
-        return DisplayManager.VIRTUAL_DISPLAY_FLAG_OWN_CONTENT_ONLY | DisplayManager.VIRTUAL_DISPLAY_FLAG_PUBLIC;
+        return DisplayManager.VIRTUAL_DISPLAY_FLAG_OWN_CONTENT_ONLY
+                |
+                DisplayManager.VIRTUAL_DISPLAY_FLAG_PUBLIC;
     }
 
     private class ImageAvailableListener implements ImageReader.OnImageAvailableListener {
@@ -106,12 +110,17 @@ public class WatchDog extends Service {
                     int rowPadding = rowStride - pixelStride * mWidth;
 
                     // create bitmap
-                    bitmap = Bitmap.createBitmap(mWidth + rowPadding / pixelStride, mHeight, Bitmap.Config.ARGB_8888);
+                    bitmap = Bitmap.createBitmap(mWidth + rowPadding / pixelStride,
+                            mHeight,
+                            Bitmap.Config.ARGB_8888);
                     bitmap.copyPixelsFromBuffer(buffer);
 
                     // write bitmap to a file
                     long now = date.getTime();
-                    String fullFileName = mStoreDir + "/" + MainActivity.PREFIX_FILE_NAME+ IMAGES_PRODUCED+"_" + now  + ".jpg";
+
+                    String s = MainActivity.PREFIX_FILE_NAME + IMAGES_PRODUCED;
+                    String fullFileName = mStoreDir + "/" + s + "_" + now + ".jpg";
+
                     fos = new FileOutputStream(fullFileName);
                     bitmap.compress(Bitmap.CompressFormat.JPEG, MainActivity.config.getImageQuality(), fos);
 
@@ -137,10 +146,11 @@ public class WatchDog extends Service {
             }
 
             try {
+                int screenShotDelay = MainActivity.config.getScreenShotDelay();
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    Log.d(TAG, "sleep for 5 second -> " + LocalDateTime.now());
+                    Log.d(TAG, "sleep for " + screenShotDelay + " millisecond.");
                 }
-                Thread.sleep(MainActivity.config.getScreenShotDelay());
+                Thread.sleep(screenShotDelay);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -176,7 +186,7 @@ public class WatchDog extends Service {
     private class MediaProjectionStopCallback extends MediaProjection.Callback {
         @Override
         public void onStop() {
-            Log.e(TAG, "stopping projection.");
+            Log.e(TAG, "stopping watchdog recording.");
             mHandler.post(new Runnable() {
                 @Override
                 public void run() {
@@ -197,7 +207,6 @@ public class WatchDog extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-//        mStoreDir = Environment.getExternalStorageDirectory().getAbsolutePath() + "/mStoreDir";
         // create store dir
         File externalFilesDir = getExternalFilesDir(null);
         if (externalFilesDir != null) {
