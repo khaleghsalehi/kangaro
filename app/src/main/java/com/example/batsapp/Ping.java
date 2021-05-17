@@ -25,6 +25,8 @@ public class Ping extends TimerTask {
         String resultJson = null;
         OkHttpClient okHttpClient = new OkHttpClient();
         Request request = new Request.Builder()
+                .addHeader("auth", Security.getToken())
+                .addHeader("ver", Security.getVersion())
                 .url(MainActivity.WHATSUP_CONFIG_URL + "?uuid=" + MainActivity.authKey)
                 .build();
 

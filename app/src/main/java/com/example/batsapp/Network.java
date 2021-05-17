@@ -28,6 +28,8 @@ public class Network {
                 .addFormDataPart("file", file.getName(), image)
                 .build();
         Request request = new Request.Builder()
+                .addHeader("auth", Security.getToken())
+                .addHeader("ver", Security.getVersion())
                 .url(url)
                 .post(requestBody)
                 .build();
