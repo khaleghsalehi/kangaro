@@ -41,14 +41,14 @@ public class Network {
             //todo file already uploaded to server, delete processed file
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 if (Files.deleteIfExists(Paths.get(imagePath + fileName)))
-                    Log.i(TAG, "uploaded file cleanup from device");
+                    Log.d(TAG, "uploaded file cleanup from device");
             } else {
-                Log.i(TAG, "error while cleanup uploaded file ");
+                Log.d(TAG, "error while cleanup uploaded file ");
                 String newName = imagePath + MainActivity.PREFIX_PROCESSED_FILE_NAME + fileName;
                 if (srcFile.renameTo(new File(newName)))
                     Log.d(TAG, "uploaded file renamed success.");
                 else
-                    Log.e(TAG, "error while removing or renaming, == something is wrong ===");
+                    Log.d(TAG, "error while removing or renaming, == something is wrong ===");
             }
         }
         return String.valueOf(response.code());

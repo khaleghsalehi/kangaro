@@ -51,7 +51,7 @@ public class Utils {
             System.exit(0);
 
         } else {
-            Log.e(TAG, "clear authKey error.");
+            Log.d(TAG, "clear authKey error.");
 
         }
 
@@ -78,9 +78,9 @@ public class Utils {
                 ret = stringBuilder.toString();
             }
         } catch (FileNotFoundException e) {
-            Log.e(TAG, "Error, authKey not found");
+            Log.d(TAG, "Error, authKey not found");
         } catch (IOException e) {
-            Log.e(TAG, "Exception, error parsing authKey");
+            Log.d(TAG, "Exception, error parsing authKey");
         }
 
         return ret;
@@ -94,9 +94,9 @@ public class Utils {
                                     Context.MODE_PRIVATE));
             outputStreamWriter.write(data);
             outputStreamWriter.close();
-            Log.e("Exception", "authKey write");
+            Log.d("Exception", "authKey write");
         } catch (IOException e) {
-            Log.e("Exception", "File write failed: " + e.toString());
+            Log.d("Exception", "File write failed: " + e.toString());
         }
     }
 

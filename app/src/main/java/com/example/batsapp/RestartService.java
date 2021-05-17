@@ -18,7 +18,7 @@ public class RestartService extends BroadcastReceiver {
         int resultCode = intent.getIntExtra("resultCode", Activity.RESULT_CANCELED);
         Intent result_data = intent.getParcelableExtra("DATA");
 
-        Log.e(TAG, String.valueOf(resultCode));
+        Log.d(TAG, String.valueOf(resultCode));
 
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

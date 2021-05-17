@@ -82,18 +82,7 @@
         android:layout_gravity="center"
         android:layout_marginTop="20dp"
         android:layout_weight="1"
-        android:orientation="horizontal">
-
-        <TextView
-            android:id="@+id/status"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="نظارت بر کودک: در انتظار دریافت دستور"
-            android:textSize="20dp">
-
-        </TextView>
-    </LinearLayout>
+        android:orientation="horizontal"/>
 
 
 </LinearLayout>

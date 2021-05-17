@@ -103,7 +103,7 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         TextView version;
 
-        Log.e(TAG, "starting batsapp " + APP_VERSION);
+        Log.d(TAG, "starting batsapp " + APP_VERSION);
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.startpage);
@@ -234,7 +234,7 @@ public class MainActivity extends Activity {
     }
 
     public void parentalMode(View view) {
-        Log.e(TAG, "switch in parentalMode " + APP_VERSION);
+        Log.d(TAG, "switch in parentalMode " + APP_VERSION);
 
         setContentView(R.layout.paretpage);
         progressBar = findViewById(R.id.webProgressBar);
@@ -292,7 +292,7 @@ public class MainActivity extends Activity {
 
 
     public void kidsMode(View view) {
-        Log.e(TAG, "switch in kidsMode " + APP_VERSION);
+        Log.d(TAG, "switch in kidsMode " + APP_VERSION);
         setContentView(R.layout.kidspage);
 
 
@@ -333,7 +333,7 @@ public class MainActivity extends Activity {
                     }
                 } else {
                     authKeyStatus = false;
-                    Log.e(TAG, "user first need to login and get QR code.");
+                    Log.d(TAG, "user first need to login and get QR code.");
                 }
 
 
@@ -407,9 +407,9 @@ public class MainActivity extends Activity {
                     @Override
                     public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
                         result[0] = Objects.requireNonNull(response.body()).string();
-                        Log.i(TAG, "get authKey from server -> " + result[0]);
+                        Log.d(TAG, "get authKey from server -> " + result[0]);
                         MainActivity.authKey = result[0];
-                        Log.i(TAG, "REST Auth result " + MainActivity.authKey);
+                        Log.d(TAG, "REST Auth result " + MainActivity.authKey);
                         Utils.writeAuthKey(MainActivity.authKey, getApplicationContext());
                         try {
                             BarcodeEncoder barcodeEncoder = new BarcodeEncoder();

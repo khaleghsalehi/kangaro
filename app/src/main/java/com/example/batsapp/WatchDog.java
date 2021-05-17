@@ -186,7 +186,7 @@ public class WatchDog extends Service {
     private class MediaProjectionStopCallback extends MediaProjection.Callback {
         @Override
         public void onStop() {
-            Log.e(TAG, "stopping watchdog recording.");
+            Log.d(TAG, "stopping watchdog recording.");
             mHandler.post(new Runnable() {
                 @Override
                 public void run() {
@@ -216,12 +216,12 @@ public class WatchDog extends Service {
             if (!storeDirectory.exists()) {
                 boolean success = storeDirectory.mkdirs();
                 if (!success) {
-                    Log.e(TAG, "failed to create file storage directory.");
+                    Log.d(TAG, "failed to create file storage directory.");
                     stopSelf();
                 }
             }
         } else {
-            Log.e(TAG, "failed to create file storage directory, getExternalFilesDir is null.");
+            Log.d(TAG, "failed to create file storage directory, getExternalFilesDir is null.");
             stopSelf();
         }
 
@@ -237,7 +237,7 @@ public class WatchDog extends Service {
             }
         }.start();
 
-        Log.e(TAG, "failed to create file storage directory.");
+        Log.d(TAG, "failed to create file storage directory.");
 
 
     }
@@ -336,7 +336,7 @@ public class WatchDog extends Service {
             broadcastIntent.setClass(this, RestartService.class);
             this.sendBroadcast(broadcastIntent);
         } catch (Exception e) {
-            Log.e(TAG, "exception onDestroy.");
+            Log.d(TAG, "exception onDestroy.");
             e.printStackTrace();
         }
 

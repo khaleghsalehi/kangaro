@@ -47,21 +47,21 @@ public class UploadServiceManager extends TimerTask {
                                             MainActivity.screenshotList.clear();
                                         }
                                         MainActivity.screenshotList.put(checksum, rootPath + fileName);
-                                        Log.i(TAG, "file added to hashmap, upload result " + response);
+                                        Log.d(TAG, "file added to hashmap, upload result " + response);
                                     }
                                 } else {
-                                    Log.i(TAG, "duplicated screenshot," + rootPath + fileName + "checksum " + checksum);
+                                    Log.d(TAG, "duplicated screenshot," + rootPath + fileName + "checksum " + checksum);
                                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                                         boolean result = Files.deleteIfExists(Paths.get(rootPath + fileName));
                                         if (result)
-                                            Log.i(TAG, "duplicated removed from device");
+                                            Log.d(TAG, "duplicated removed from device");
                                         else
-                                            Log.e(TAG, "removed duplicated file error!");
+                                            Log.d(TAG, "removed duplicated file error!");
 
                                     }
                                 }
                             } else {
-                                Log.e(TAG, "authKey is null or empty!");
+                                Log.d(TAG, "authKey is null or empty!");
                             }
                         } catch (IOException | NoSuchAlgorithmException e) {
                             e.printStackTrace();
@@ -74,10 +74,10 @@ public class UploadServiceManager extends TimerTask {
                     Log.d(TAG, " everything is updated");
                 }
             } else { // Ooopssss, files path not found...
-                Log.e(TAG, "file path not fond");
+                Log.d(TAG, "file path not fond");
             }
         } else {
-            Log.i(TAG, "stop command detected.");
+            Log.d(TAG, "stop command detected.");
         }
 
     }

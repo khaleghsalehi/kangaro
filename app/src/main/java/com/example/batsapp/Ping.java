@@ -17,7 +17,7 @@ public class Ping extends TimerTask {
 
     @Override
     public void run() {
-        Log.i(TAG, "call whatsup API and get response");
+        Log.d(TAG, "call whatsup API and get response");
         getConfig();
     }
 
@@ -55,7 +55,7 @@ public class Ping extends TimerTask {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            Log.e(TAG, "Oops! exception while setting config, return defualt");
+            Log.d(TAG, "Oops! exception while setting config, return defualt");
         }
     }
 
