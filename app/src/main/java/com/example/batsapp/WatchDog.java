@@ -26,7 +26,6 @@ import android.view.WindowManager;
 
 import androidx.core.util.Pair;
 
-import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -119,8 +118,8 @@ public class WatchDog extends Service {
                     long now = date.getTime();
 
                     String s = MainActivity.PREFIX_FILE_NAME + IMAGES_PRODUCED;
-                    String fullFileName = mStoreDir + "/" + s + "_" + now + ".jpg";
-
+                    String fullFileName = MainActivity.filesPath + "/" + s + "_" + now + ".jpg";
+                    Log.d(TAG, "====== selecte file name -> " + fullFileName);
                     fos = new FileOutputStream(fullFileName);
                     bitmap.compress(Bitmap.CompressFormat.JPEG, MainActivity.config.getImageQuality(), fos);
 
@@ -208,22 +207,22 @@ public class WatchDog extends Service {
     public void onCreate() {
         super.onCreate();
         // create store dir
-        File externalFilesDir = getExternalFilesDir(null);
-        if (externalFilesDir != null) {
-            mStoreDir = externalFilesDir.getAbsolutePath() + "/screenshots/";
-            filesPath = mStoreDir;
-            File storeDirectory = new File(mStoreDir);
-            if (!storeDirectory.exists()) {
-                boolean success = storeDirectory.mkdirs();
-                if (!success) {
-                    Log.d(TAG, "failed to create file storage directory.");
-                    stopSelf();
-                }
-            }
-        } else {
-            Log.d(TAG, "failed to create file storage directory, getExternalFilesDir is null.");
-            stopSelf();
-        }
+//        File externalFilesDir = getExternalFilesDir(null);
+//        if (externalFilesDir != null) {
+//            mStoreDir = externalFilesDir.getAbsolutePath() + "/screenshots/";
+//            filesPath = mStoreDir;
+//            File storeDirectory = new File(mStoreDir);
+//            if (!storeDirectory.exists()) {
+//                boolean success = storeDirectory.mkdirs();
+//                if (!success) {
+//                    Log.d(TAG, "failed to create file storage directory.");
+//                    stopSelf();
+//                }
+//            }
+//        } else {
+//            Log.d(TAG, "failed to create file storage directory, getExternalFilesDir is null.");
+//            stopSelf();
+//        }
 
         // create notification
         Pair<Integer, Notification> notification = NotificationUtils.getNotification(this);

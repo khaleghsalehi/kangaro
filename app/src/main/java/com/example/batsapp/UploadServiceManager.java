@@ -18,9 +18,9 @@ public class UploadServiceManager extends TimerTask {
     @Override
     public void run() {
         if (MainActivity.config.getCommand().equals("start")) {
-            if (!WatchDog.filesPath.equals("empty")) { // yup upload it
+            if (!MainActivity.filesPath.equals("empty")) { // yup upload it
                 Log.d(TAG, "checking and uploading new files.");
-                String rootPath = WatchDog.filesPath;
+                String rootPath = MainActivity.filesPath;
                 int counter = 0;
                 String[] pathnames;
                 File f = new File(rootPath);

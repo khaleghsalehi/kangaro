@@ -34,6 +34,7 @@ import com.journeyapps.barcodescanner.BarcodeEncoder;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Objects;
@@ -56,7 +57,7 @@ public class MainActivity extends Activity {
     private static final int REQUEST_CODE = 100;
 
     private static final String TAG = "batsapp";
-    public static final String APP_VERSION = "0.0.9";
+    public static final String APP_VERSION = "0.0.11";
 
     private static Intent result_data;
 
@@ -95,16 +96,42 @@ public class MainActivity extends Activity {
     public WebView webView;
     private ProgressBar progressBar;
 
+
+    public static String filesPath = "";
+
+
     Handler handler = new Handler();
 
 
     public MainActivity() {
     }
 
+    private void createStoreDirectory() {
+        File externalFilesDir = getExternalFilesDir(null);
+        if (externalFilesDir != null) {
+            String mStoreDir = externalFilesDir.getAbsolutePath() + "/screenshots/";
+            filesPath = mStoreDir;
+            File storeDirectory = new File(mStoreDir);
+            if (!storeDirectory.exists()) {
+                boolean success = storeDirectory.mkdirs();
+                if (!success) {
+                    Log.d(TAG, "failed to create file storage directory.");
+                }
+            }
+        } else {
+            Log.d(TAG, "failed to create file storage directory, getExternalFilesDir is null.");
+        }
+        Log.d(TAG, "============== filePath =============== " + filesPath);
+
+    }
+
 
     @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        //
+        createStoreDirectory();
 
         Log.d(TAG, "starting batsapp " + APP_VERSION);
         super.onCreate(savedInstanceState);
@@ -226,6 +253,7 @@ public class MainActivity extends Activity {
         version.setText("version " + APP_VERSION);
  */
     }
+
 
     private void openFileExplorer() {
         Intent i = new Intent(Intent.ACTION_GET_CONTENT);
