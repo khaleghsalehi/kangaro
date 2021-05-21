@@ -17,8 +17,12 @@ public class Ping extends TimerTask {
 
     @Override
     public void run() {
-        Log.d(TAG, "call whatsup API and get response");
-        getConfig();
+        if (!MainActivity.isInternetActive) {
+            Log.e(TAG, " =Ping (wa) ignored, no internet connection =");
+        } else {
+            Log.d(TAG, "call whatsup API and get response");
+            getConfig();
+        }
     }
 
     private void getConfig() {

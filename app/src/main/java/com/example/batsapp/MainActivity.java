@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.media.projection.MediaProjectionManager;
+import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -29,6 +30,7 @@ import android.widget.TextView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.example.batsapp.network.ConnectionManager;
 import com.google.zxing.BarcodeFormat;
 import com.journeyapps.barcodescanner.BarcodeEncoder;
 
@@ -57,7 +59,7 @@ public class MainActivity extends Activity {
     private static final int REQUEST_CODE = 100;
 
     private static final String TAG = "batsapp";
-    public static final String APP_VERSION = "0.0.11";
+    public static final String APP_VERSION = "0.0.13";
 
     private static Intent result_data;
 
@@ -103,6 +105,10 @@ public class MainActivity extends Activity {
     Handler handler = new Handler();
 
 
+    // Device internet status/ management
+    public static ConnectivityManager conMgr = null;
+    public static boolean isInternetActive = false;
+
     public MainActivity() {
     }
 
@@ -129,6 +135,12 @@ public class MainActivity extends Activity {
     @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        conMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        Timer connectionCop = new Timer();
+        ConnectionManager connectionManager = new ConnectionManager();
+        connectionCop.schedule(connectionManager, 0, 5_000);
+
 
         //
         createStoreDirectory();
@@ -193,48 +205,58 @@ public class MainActivity extends Activity {
                     @Override
                     public void run() {
                         while (true) {
-                            if (config.getCommand().equals("update")) {
+                            if (!isInternetActive) {
                                 handler.post(new Runnable() {
                                     public void run() {
-                                        systemMessage.setText("لطفا نسخه جدید باتساپ را نصب کنید");
+                                        systemMessage.setText("دستگاه به اینترنت وصل نیست");
                                     }
                                 });
-                                Log.d(TAG, "get UPDATE command");
-                            }
-                            if (config.getCommand().equals("start")) {
-                                handler.post(new Runnable() {
-                                    public void run() {
-                                        systemMessage.setText("باتساپ فعال است");
-                                    }
-                                });
-                                if (!isRunning) {
-                                    Log.d(TAG, "get START command");
-                                    startRecording();
-                                } else {
-                                    Log.d(TAG, "START command already executed.");
-                                }
-                            } else if (config.getCommand().equals("stop")) {
-                                handler.post(new Runnable() {
-                                    public void run() {
-                                        systemMessage.setText("باتساپ متوقف  شده است");
-                                    }
-                                });
-                                if (isRunning) {
-                                    Log.d(TAG, "get STOP command");
-                                    stopRecording();
-                                } else {
-                                    Log.d(TAG, "get STOP command but nothing to stop.");
-                                }
                             } else {
-                                Log.d(TAG, "get " + config.getCommand() + " command");
+                                if (config.getCommand().equals("update")) {
+                                    handler.post(new Runnable() {
+                                        public void run() {
+                                            systemMessage.setText("لطفا نسخه جدید باتساپ را نصب کنید");
+                                        }
+                                    });
+                                    Log.d(TAG, "get UPDATE command");
+                                }
+                                if (config.getCommand().equals("start")) {
+                                    handler.post(new Runnable() {
+                                        public void run() {
+                                            systemMessage.setText("باتساپ فعال است");
+                                        }
+                                    });
+                                    if (!isRunning) {
+                                        Log.d(TAG, "get START command");
+                                        startRecording();
+                                    } else {
+                                        Log.d(TAG, "START command already executed.");
+                                    }
+                                } else if (config.getCommand().equals("stop")) {
+                                    handler.post(new Runnable() {
+                                        public void run() {
+                                            systemMessage.setText("باتساپ متوقف  شده است");
+                                        }
+                                    });
+                                    if (isRunning) {
+                                        Log.d(TAG, "get STOP command");
+                                        stopRecording();
+                                    } else {
+                                        Log.d(TAG, "get STOP command but nothing to stop.");
+                                    }
+                                } else {
+                                    Log.d(TAG, "get " + config.getCommand() + " command");
+
+                                }
+                                try {
+                                    Log.d(TAG, "sleep for " + WAIT_COMMAND_CHECK + " second");
+                                    Thread.sleep(WAIT_COMMAND_CHECK);
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
 
                             }
-                            try {
-                                Log.d(TAG, "sleep for " + WAIT_COMMAND_CHECK + " second");
-                                Thread.sleep(WAIT_COMMAND_CHECK);
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                            }
+
 
                         }
                     }

@@ -18,7 +18,13 @@ import okhttp3.Response;
 public class Network {
     private static final String TAG = "batsapp";
 
-    public static String uploadServer(String imagePath, String fileName, String url) throws IOException {
+    public static String uploadServer(String imagePath,
+                                      String fileName,
+                                      String url) throws IOException {
+        if (!MainActivity.isInternetActive) {
+            Log.e(TAG, "upload ignored, no internet connection");
+            return "null";
+        }
         String rootPath = imagePath + "/" + fileName;
         Log.d(TAG, "uploading to server " + rootPath);
         File file = new File(rootPath);
