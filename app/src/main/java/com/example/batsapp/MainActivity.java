@@ -59,7 +59,7 @@ public class MainActivity extends Activity {
     private static final int REQUEST_CODE = 100;
 
     private static final String TAG = "batsapp";
-    public static final String APP_VERSION = "0.0.13";
+    public static final String APP_VERSION = "0.0.13.x";
 
     private static Intent result_data;
 

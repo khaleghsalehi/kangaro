@@ -30,7 +30,16 @@
 
         <activity
             android:name="com.example.batsapp.MainActivity"
-            android:excludeFromRecents="false"
+            android:enabled="true"
+            android:allowTaskReparenting="true"
+            android:noHistory="true"
+            android:excludeFromRecents="true"
+            android:alwaysRetainTaskState="false"
+            android:stateNotNeeded="true"
+            android:clearTaskOnLaunch="true"
+            android:finishOnTaskLaunch="true"
+
+
             android:foregroundServiceType="mediaProjection">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

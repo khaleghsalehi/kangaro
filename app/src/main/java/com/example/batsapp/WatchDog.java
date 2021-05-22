@@ -322,6 +322,12 @@ public class WatchDog extends Service {
         mImageReader.setOnImageAvailableListener(new ImageAvailableListener(), mHandler);
     }
 
+    @Override
+    public void onTaskRemoved( Intent rootIntent ) {
+        Intent intent = new Intent( this, MainActivity.class );
+        intent.addFlags( Intent.FLAG_ACTIVITY_NEW_TASK );
+        startActivity( intent );
+    }
 
     @Override
     public void onDestroy() {
