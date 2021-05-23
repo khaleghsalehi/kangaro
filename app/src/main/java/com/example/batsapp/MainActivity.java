@@ -2,7 +2,9 @@ package com.example.batsapp;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -12,6 +14,8 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.StrictMode;
+import android.text.InputType;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -22,6 +26,7 @@ import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -77,6 +82,7 @@ public class MainActivity extends Activity {
     public static final String WHATSUP_CONFIG_URL = "https://batsapp.ir/v1/ws";
     private static final String BATSAPP_MAIN_URL = "https://batsapp.ir";
     private static final String BATSAPP_HELP_URL = "https://batsapp.ir/exbord";
+    private static final String BATSAPP_CHECK_PASS_URL = "https://batsapp.ir/v1/checkPass";
 
 
     public static String userName = "";
@@ -149,12 +155,18 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.kidspage);
+        EditText userNameText = findViewById(R.id.username);
+        EditText passwordText = findViewById(R.id.password);
+        TextView userNameLabel = findViewById(R.id.usernameLable);
+        TextView passwordLabel = findViewById(R.id.passwordLable);
+        TextView systemMessage = findViewById(R.id.systemMessage);
+        Button getAuthKeyButton = findViewById(R.id.auth);
+        Button resetCodeButton = findViewById(R.id.clearAuthKey);
+
 
         //todo if config done, select and start activity
         TextView version = findViewById(R.id.appVersion);
         version.setText(APP_VERSION);
-
-        TextView systemMessage = findViewById((R.id.systemMessage));
 
 
         //fixme get file path inside method and change strategy...
@@ -181,6 +193,17 @@ public class MainActivity extends Activity {
                 if (!authKey.equals("empty")) {
                     Log.d(TAG, "extracted  authKey -> " + authKey);
                     authKeyStatus = true;
+
+                    Log.d(TAG, "make items hidden");
+                    userNameText.setVisibility(View.INVISIBLE);
+                    passwordText.setVisibility(View.INVISIBLE);
+                    getAuthKeyButton.setVisibility(View.INVISIBLE);
+                    userNameLabel.setVisibility(View.INVISIBLE);
+                    passwordLabel.setVisibility(View.INVISIBLE);
+
+                    resetCodeButton.setVisibility(View.VISIBLE);
+                    systemMessage.setVisibility(View.VISIBLE);
+
                     Log.d(TAG, "extracted  credentials -> " + authKey);
                     try {
                         BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
@@ -194,7 +217,16 @@ public class MainActivity extends Activity {
                     }
                 } else {
                     authKeyStatus = false;
-                    Log.d(TAG, "user first need to login and get QR code.");
+                    Log.d(TAG, "make items visible");
+                    userNameText.setVisibility(View.VISIBLE);
+                    passwordText.setVisibility(View.VISIBLE);
+                    getAuthKeyButton.setVisibility(View.VISIBLE);
+                    userNameLabel.setVisibility(View.VISIBLE);
+                    passwordLabel.setVisibility(View.VISIBLE);
+
+                    resetCodeButton.setVisibility(View.INVISIBLE);
+                    systemMessage.setVisibility(View.INVISIBLE);
+
                 }
 
 
@@ -319,6 +351,7 @@ public class MainActivity extends Activity {
 
             return true;
         }
+
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -416,7 +449,67 @@ public class MainActivity extends Activity {
     }
 
     public void clearCache(View view) throws IOException {
-        Utils.clearAuthKey(getApplicationContext());
+        StrictMode.ThreadPolicy policy = new StrictMode
+                .ThreadPolicy
+                .Builder()
+                .permitAll()
+                .build();
+        StrictMode.setThreadPolicy(policy);
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("کلمه عبور را وارد کنید");
+
+        final EditText input = new EditText(this);
+        input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+        builder.setView(input);
+
+        builder.setPositiveButton("تایید", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String password = input.getText().toString();
+                String uuid = Utils.readAuthKey(getApplicationContext());
+                OkHttpClient okHttpClient = new OkHttpClient();
+
+                String url = MainActivity.BATSAPP_CHECK_PASS_URL
+                        + "?uuid=" + uuid.replaceAll("\n", "")
+                        + "&password=" + password;
+                Log.d(TAG, "checkPass URL  " + url);
+                Request request = new Request.Builder()
+                        .addHeader("auth", Security.getToken())
+                        .addHeader("ver", Security.getVersion())
+                        .url(url)
+                        .build();
+
+                try (Response response = okHttpClient.newCall(request).execute()) {
+                    if (!response.isSuccessful())
+                        throw new IOException("Unexpected code " + response);
+                    //String resp = Objects.requireNonNull(response.body()).toString();
+                    if (response.body().string().equals("AUTHORIZED")) {
+                        try {
+                            Log.d(TAG, "user authorized successfully, clear QR code.");
+                            Utils.clearAuthKey(getApplicationContext());
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    } else {
+                        Log.d(TAG, "error user authorization");
+
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+
+            }
+        });
+        builder.setNegativeButton("انصراف", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+        builder.show();
+
     }
 
 
@@ -546,15 +639,20 @@ public class MainActivity extends Activity {
     }
 
     public void getQrCode(View view) {
+        EditText userNameText = findViewById(R.id.username);
+        EditText passwordText = findViewById(R.id.password);
+        TextView userNameLabel = findViewById(R.id.usernameLable);
+        TextView passwordLabel = findViewById(R.id.passwordLable);
+        TextView systemMessage = findViewById(R.id.systemMessage);
+        Button getAuthKeyButton = findViewById(R.id.auth);
+        Button resetCodeButton = findViewById(R.id.clearAuthKey);
         if (authKeyStatus) {
             Log.d(TAG, " user already logged via  " + MainActivity.authKey);
         } else {
-            EditText u = findViewById(R.id.username);
-            EditText p = findViewById(R.id.password);
-            userName = u.getText().toString();
-            password = p.getText().toString();
-            u.setText("");
-            p.setText("");
+            userName = userNameText.getText().toString();
+            password = passwordText.getText().toString();
+            userNameText.setText("");
+            passwordText.setText("");
             if (userName.length() > 0 && password.length() > 0) {
 
 
@@ -584,6 +682,19 @@ public class MainActivity extends Activity {
                             imageViewQrCode.setImageBitmap(bitmap);
                             //todo check here , need to validate response?
                             authKeyStatus = true;
+                            handler.post(new Runnable() {
+                                public void run() {
+                                    userNameText.setVisibility(View.INVISIBLE);
+                                    passwordText.setVisibility(View.INVISIBLE);
+                                    getAuthKeyButton.setVisibility(View.INVISIBLE);
+                                    userNameLabel.setVisibility(View.INVISIBLE);
+                                    passwordLabel.setVisibility(View.INVISIBLE);
+
+                                    systemMessage.setVisibility(View.VISIBLE);
+                                    resetCodeButton.setVisibility(View.VISIBLE);
+                                }
+                            });
+
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
