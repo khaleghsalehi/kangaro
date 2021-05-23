@@ -46,7 +46,7 @@ public class WatchDog extends Service {
     private static Intent result_data;
     private static int IMAGES_PRODUCED;
 
-    public static String filesPath = "";
+   // public static String filesPath = "";
 
     private MediaProjection mMediaProjection;
     private String mStoreDir;

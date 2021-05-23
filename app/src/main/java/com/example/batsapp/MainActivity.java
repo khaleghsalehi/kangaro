@@ -60,22 +60,23 @@ public class MainActivity extends Activity {
     public static HashMap<String, String> screenshotList = new HashMap<>();
 
     public static final int FILE_COUNT_MAX = 10_000;
-    private static int result_code = 0;
     private static final int REQUEST_CODE = 100;
 
+    private static final int STORAGE_PERMISSION_CODE = 123;
+    private final static int FILE_CHOOSER_RESULT_CODE = 1;
+    private final static long WAIT_COMMAND_CHECK = 5_000;
+
+    private static int result_code = 0;
+
     private static final String TAG = "batsapp";
-    public static final String APP_VERSION = "0.0.14.x";
+    public static final String APP_VERSION = "Batsapp 0.16 (Alpha)";
+    // Alpha, Beta, Stable
 
     private static Intent result_data;
 
     public static final String PREFIX_FILE_NAME = "ScreenShot_";
     public static final String PREFIX_PROCESSED_FILE_NAME = "Processed_";
 
-//    public static final String SERVER_URL = "http://192.168.43.81:8081/v1/getPic";
-//    public static final String REST_AUTH_URL = "http://192.168.43.81:8081/v1/getAuthKey";
-//    public static final String WHATSUP_CONFIG_URL = "http://192.168.43.81:8081/v1/ws";
-//    private static final String BATSAPP_MAIN_URL = "http://192.168.43.81:8081";
-//    private static final String BATSAPP_HELP_URL = "http://192.168.43.81:8081";
 
     public static final String SERVER_URL = "https://batsapp.ir/v1/getPic";
     public static final String REST_AUTH_URL = "https://batsapp.ir/v1/getAuthKey";
@@ -91,13 +92,10 @@ public class MainActivity extends Activity {
     public static boolean authKeyStatus = false;
     public static boolean isRunning = false;
     public static String authKey = "empty";
-    private final static long WAIT_COMMAND_CHECK = 5_000;
-
 
     private ValueCallback<Uri[]> mUploadMessage;
 
-    private static final int STORAGE_PERMISSION_CODE = 123;
-    private final static int FILE_CHOOSER_RESULT_CODE = 1;
+
 
     private float m_downX;
     public static Config config = new Config();
@@ -107,13 +105,12 @@ public class MainActivity extends Activity {
 
     public static String filesPath = "";
 
-
     Handler handler = new Handler();
 
-
     // Device internet status/ management
-    public static ConnectivityManager conMgr = null;
+    public static ConnectivityManager connectionManager = null;
     public static boolean isInternetActive = false;
+
 
     public MainActivity() {
     }
@@ -133,7 +130,7 @@ public class MainActivity extends Activity {
         } else {
             Log.d(TAG, "failed to create file storage directory, getExternalFilesDir is null.");
         }
-        Log.d(TAG, "============== filePath =============== " + filesPath);
+        Log.d(TAG, " filePath " + filesPath);
 
     }
 
@@ -141,7 +138,7 @@ public class MainActivity extends Activity {
     @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        conMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        connectionManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
 
         Timer connectionCop = new Timer();
         ConnectionManager connectionManager = new ConnectionManager();
@@ -170,7 +167,7 @@ public class MainActivity extends Activity {
 
 
         //fixme get file path inside method and change strategy...
-        WatchDog.filesPath = "empty";
+       // WatchDog.filesPath = "empty";
 
 
         // call ws and get command & renew  candidate config every 5 second
@@ -194,14 +191,15 @@ public class MainActivity extends Activity {
                     Log.d(TAG, "extracted  authKey -> " + authKey);
                     authKeyStatus = true;
 
-                    Log.d(TAG, "make items hidden");
                     userNameText.setVisibility(View.INVISIBLE);
                     passwordText.setVisibility(View.INVISIBLE);
-                    getAuthKeyButton.setVisibility(View.INVISIBLE);
+
                     userNameLabel.setVisibility(View.INVISIBLE);
                     passwordLabel.setVisibility(View.INVISIBLE);
 
+                    getAuthKeyButton.setVisibility(View.INVISIBLE);
                     resetCodeButton.setVisibility(View.VISIBLE);
+
                     systemMessage.setVisibility(View.VISIBLE);
 
                     Log.d(TAG, "extracted  credentials -> " + authKey);
@@ -217,9 +215,10 @@ public class MainActivity extends Activity {
                     }
                 } else {
                     authKeyStatus = false;
-                    Log.d(TAG, "make items visible");
+
                     userNameText.setVisibility(View.VISIBLE);
                     passwordText.setVisibility(View.VISIBLE);
+
                     getAuthKeyButton.setVisibility(View.VISIBLE);
                     userNameLabel.setVisibility(View.VISIBLE);
                     passwordLabel.setVisibility(View.VISIBLE);
@@ -247,7 +246,7 @@ public class MainActivity extends Activity {
                                 if (config.getCommand().equals("update")) {
                                     handler.post(new Runnable() {
                                         public void run() {
-                                            systemMessage.setText("لطفا نسخه جدید باتساپ را نصب کنید");
+                                            systemMessage.setText(TextLabel.PERSIAN_PLEASE_UPDATE_BATSAPP);
                                         }
                                     });
                                     Log.d(TAG, "get UPDATE command");
@@ -457,13 +456,13 @@ public class MainActivity extends Activity {
         StrictMode.setThreadPolicy(policy);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("کلمه عبور را وارد کنید");
+        builder.setTitle(TextLabel.PERSIAN_ENTER_PASSWORD);
 
         final EditText input = new EditText(this);
         input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
         builder.setView(input);
 
-        builder.setPositiveButton("تایید", new DialogInterface.OnClickListener() {
+        builder.setPositiveButton(TextLabel.PERSIAN_OK, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 String password = input.getText().toString();
@@ -483,8 +482,7 @@ public class MainActivity extends Activity {
                 try (Response response = okHttpClient.newCall(request).execute()) {
                     if (!response.isSuccessful())
                         throw new IOException("Unexpected code " + response);
-                    //String resp = Objects.requireNonNull(response.body()).toString();
-                    if (response.body().string().equals("AUTHORIZED")) {
+                    if (Objects.requireNonNull(response.body()).string().equals("AUTHORIZED")) {
                         try {
                             Log.d(TAG, "user authorized successfully, clear QR code.");
                             Utils.clearAuthKey(getApplicationContext());
@@ -502,7 +500,7 @@ public class MainActivity extends Activity {
 
             }
         });
-        builder.setNegativeButton("انصراف", new DialogInterface.OnClickListener() {
+        builder.setNegativeButton(TextLabel.PERSIAN_CANCEL, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.cancel();
@@ -555,7 +553,7 @@ public class MainActivity extends Activity {
 
 
         //fixme get file path inside method and change strategy...
-        WatchDog.filesPath = "empty";
+       // WatchDog.filesPath = "empty";
 
 
         // call ws and get command & renew  candidate config every 5 second

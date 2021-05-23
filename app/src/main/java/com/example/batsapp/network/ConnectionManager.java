@@ -13,7 +13,7 @@ public class ConnectionManager extends TimerTask {
 
     @Override
     public void run() {
-        if (Connection.isConnected(MainActivity.conMgr)) {
+        if (Connection.isConnected(MainActivity.connectionManager)) {
             MainActivity.isInternetActive = true;
             Log.d(TAG, "= device internet active =");
         } else {
