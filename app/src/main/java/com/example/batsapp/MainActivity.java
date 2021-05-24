@@ -70,7 +70,7 @@ public class MainActivity extends Activity {
     private static int result_code = 0;
 
     private static final String TAG = "batsapp";
-    public static final String APP_VERSION = "Batsapp 0.16.5 (Alpha)";
+    public static final String APP_VERSION = "Batsapp 0.17 (Alpha)";
     // Alpha, Beta, Stable
 
     private static Intent result_data;
@@ -173,7 +173,6 @@ public class MainActivity extends Activity {
         TextView passwordLabel = findViewById(R.id.passwordLable);
         TextView systemMessage = findViewById(R.id.systemMessage);
         Button getAuthKeyButton = findViewById(R.id.auth);
-        Button resetCodeButton = findViewById(R.id.clearAuthKey);
 
 
         //todo if config done, select and start activity
@@ -214,7 +213,6 @@ public class MainActivity extends Activity {
                     passwordLabel.setVisibility(View.INVISIBLE);
 
                     getAuthKeyButton.setVisibility(View.INVISIBLE);
-                    resetCodeButton.setVisibility(View.VISIBLE);
 
                     systemMessage.setVisibility(View.VISIBLE);
 
@@ -241,7 +239,6 @@ public class MainActivity extends Activity {
                     userNameLabel.setVisibility(View.VISIBLE);
                     passwordLabel.setVisibility(View.VISIBLE);
 
-                    resetCodeButton.setVisibility(View.INVISIBLE);
                     systemMessage.setVisibility(View.INVISIBLE);
 
                 }
@@ -665,7 +662,6 @@ public class MainActivity extends Activity {
         TextView passwordLabel = findViewById(R.id.passwordLable);
         TextView systemMessage = findViewById(R.id.systemMessage);
         Button getAuthKeyButton = findViewById(R.id.auth);
-        Button resetCodeButton = findViewById(R.id.clearAuthKey);
         if (authKeyStatus) {
             Log.d(TAG, " user already logged via  " + MainActivity.authKey);
         } else {
@@ -716,7 +712,6 @@ public class MainActivity extends Activity {
                                     passwordLabel.setVisibility(View.INVISIBLE);
 
                                     systemMessage.setVisibility(View.VISIBLE);
-                                    resetCodeButton.setVisibility(View.VISIBLE);
                                 }
                             });
 

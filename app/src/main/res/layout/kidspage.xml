@@ -64,23 +64,6 @@
         android:layout_marginBottom="20dp"
         android:layout_weight=".8" />
 
-    <Button
-        android:id="@+id/clearAuthKey"
-        android:layout_width="167dp"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:onClick="clearCache"
-        android:text="ریست کردن کد"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHorizontal_bias="0.755"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.841" />
-
-
-
-
     <LinearLayout
         android:layout_width="309dp"
         android:layout_height="50dp"
