@@ -4,23 +4,24 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.util.Log;
 
-import java.io.BufferedReader;
+import androidx.annotation.RequiresApi;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Scanner;
 
 public class Utils {
-    private static final String AUTH_KEY_FILE_NAME = "auth.txt";
+    private static final String AUTH_KEY_FILE_NAME = MainActivity.authKeyPath + "/" + "authKey.data";
     private static final String TAG = "batsapp";
 
     public static String getFileChecksum(MessageDigest digest, File file) throws IOException {
@@ -40,8 +41,9 @@ public class Utils {
     }
 
     public static void clearAuthKey(Context context) throws IOException {
-        boolean file = context.deleteFile(AUTH_KEY_FILE_NAME);
-        if (file) {
+        Log.d(TAG, "AUTH_KEY_FILE_NAME path " + AUTH_KEY_FILE_NAME);
+        File file = new File(AUTH_KEY_FILE_NAME);
+        if (file.delete()) {
             Log.d(TAG, "clear authKey and reload app");
             Intent mStartActivity = new Intent(context, MainActivity.class);
             int mPendingIntentId = 123456;
@@ -58,46 +60,43 @@ public class Utils {
     }
 
 
-    public static String readAuthKey(Context context) {
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public static String readAuthKey() {
+
 
         String ret = "empty";
-
         try {
-            InputStream inputStream = context.openFileInput(AUTH_KEY_FILE_NAME);
-
-            if (inputStream != null) {
-                InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
-                BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-                String receiveString = "";
-                StringBuilder stringBuilder = new StringBuilder();
-
-                while ((receiveString = bufferedReader.readLine()) != null) {
-                    stringBuilder.append("\n").append(receiveString);
-                }
-
-                inputStream.close();
-                ret = stringBuilder.toString();
-            }
+            Log.d(TAG, "AUTH_KEY_FILE_NAME path " + AUTH_KEY_FILE_NAME);
+            File authKeyFile = new File(AUTH_KEY_FILE_NAME);
+            Scanner fileReader = new Scanner(authKeyFile);
+            ret = Crypto.decrypt(fileReader.nextLine());
+            Log.d(TAG, "read authKey from file " + ret);
         } catch (FileNotFoundException e) {
             Log.d(TAG, "Error, authKey not found");
-        } catch (IOException e) {
-            Log.d(TAG, "Exception, error parsing authKey");
         }
-
         return ret;
     }
 
-    public static void writeAuthKey(String data, Context context) {
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public static void writeAuthKey(String data) {
         try {
-            OutputStreamWriter outputStreamWriter =
-                    new OutputStreamWriter(
-                            context.openFileOutput(AUTH_KEY_FILE_NAME,
-                                    Context.MODE_PRIVATE));
-            outputStreamWriter.write(data);
-            outputStreamWriter.close();
-            Log.d("Exception", "authKey write");
+            Log.d(TAG, "AUTH_KEY_FILE_NAME path " + AUTH_KEY_FILE_NAME);
+            File file = new File(AUTH_KEY_FILE_NAME);
+            FileWriter fileWriter = new FileWriter(AUTH_KEY_FILE_NAME);
+            if (!file.exists()) {
+                Log.d(TAG, "authKey created");
+                if (file.createNewFile()) {
+                    fileWriter.write(data);
+                }
+            } else {
+                fileWriter.write(Crypto.encrypt(data));
+            }
+            Log.d(TAG, "authKey write");
+            fileWriter.close();
+
         } catch (IOException e) {
-            Log.d("Exception", "File write failed: " + e.toString());
+            Log.d(TAG, "Oops! authKey write failed: ");
+            e.printStackTrace();
         }
     }
 

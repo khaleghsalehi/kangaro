@@ -32,6 +32,7 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
@@ -69,7 +70,7 @@ public class MainActivity extends Activity {
     private static int result_code = 0;
 
     private static final String TAG = "batsapp";
-    public static final String APP_VERSION = "Batsapp 0.16 (Alpha)";
+    public static final String APP_VERSION = "Batsapp 0.16.5 (Alpha)";
     // Alpha, Beta, Stable
 
     private static Intent result_data;
@@ -77,6 +78,14 @@ public class MainActivity extends Activity {
     public static final String PREFIX_FILE_NAME = "ScreenShot_";
     public static final String PREFIX_PROCESSED_FILE_NAME = "Processed_";
 
+    /**
+     * public static final String SERVER_URL = "http://192.168.43.81:8081/v1/getPic";
+     * public static final String REST_AUTH_URL = "http://192.168.43.81:8081/v1/getAuthKey";
+     * public static final String WHATSUP_CONFIG_URL = "http://192.168.43.81:8081/v1/ws";
+     * private static final String BATSAPP_MAIN_URL = "http://192.168.43.81:8081";
+     * private static final String BATSAPP_HELP_URL = "http://192.168.43.81:8081/exbord";
+     * private static final String BATSAPP_CHECK_PASS_URL = "http://192.168.43.81:8081/v1/checkPass";
+     **/
 
     public static final String SERVER_URL = "https://batsapp.ir/v1/getPic";
     public static final String REST_AUTH_URL = "https://batsapp.ir/v1/getAuthKey";
@@ -96,7 +105,6 @@ public class MainActivity extends Activity {
     private ValueCallback<Uri[]> mUploadMessage;
 
 
-
     private float m_downX;
     public static Config config = new Config();
     public WebView webView;
@@ -104,6 +112,7 @@ public class MainActivity extends Activity {
 
 
     public static String filesPath = "";
+    public static String authKeyPath = "";
 
     Handler handler = new Handler();
 
@@ -135,10 +144,16 @@ public class MainActivity extends Activity {
     }
 
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         connectionManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        File authKeyFilesAbsloutPath = getExternalFilesDir(null);
+        authKeyPath = authKeyFilesAbsloutPath.getAbsolutePath();
+
 
         Timer connectionCop = new Timer();
         ConnectionManager connectionManager = new ConnectionManager();
@@ -167,7 +182,7 @@ public class MainActivity extends Activity {
 
 
         //fixme get file path inside method and change strategy...
-       // WatchDog.filesPath = "empty";
+        // WatchDog.filesPath = "empty";
 
 
         // call ws and get command & renew  candidate config every 5 second
@@ -184,9 +199,10 @@ public class MainActivity extends Activity {
 
         runOnUiThread(new Runnable() {
 
+            @RequiresApi(api = Build.VERSION_CODES.O)
             @Override
             public void run() {
-                authKey = Utils.readAuthKey(getApplicationContext());
+                authKey = Utils.readAuthKey();
                 if (!authKey.equals("empty")) {
                     Log.d(TAG, "extracted  authKey -> " + authKey);
                     authKeyStatus = true;
@@ -205,7 +221,9 @@ public class MainActivity extends Activity {
                     Log.d(TAG, "extracted  credentials -> " + authKey);
                     try {
                         BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
-                        Bitmap bitmap = barcodeEncoder.encodeBitmap(authKey, BarcodeFormat.QR_CODE,
+                        String encryptedQRCode = Crypto.encrypt(authKey);
+
+                        Bitmap bitmap = barcodeEncoder.encodeBitmap(encryptedQRCode, BarcodeFormat.QR_CODE,
                                 400, 400);
                         ImageView imageViewQrCode = (ImageView) findViewById(R.id.qrimage);
                         imageViewQrCode.setImageBitmap(bitmap);
@@ -463,10 +481,11 @@ public class MainActivity extends Activity {
         builder.setView(input);
 
         builder.setPositiveButton(TextLabel.PERSIAN_OK, new DialogInterface.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.O)
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 String password = input.getText().toString();
-                String uuid = Utils.readAuthKey(getApplicationContext());
+                String uuid = Utils.readAuthKey();
                 OkHttpClient okHttpClient = new OkHttpClient();
 
                 String url = MainActivity.BATSAPP_CHECK_PASS_URL
@@ -553,7 +572,7 @@ public class MainActivity extends Activity {
 
 
         //fixme get file path inside method and change strategy...
-       // WatchDog.filesPath = "empty";
+        // WatchDog.filesPath = "empty";
 
 
         // call ws and get command & renew  candidate config every 5 second
@@ -570,16 +589,19 @@ public class MainActivity extends Activity {
 
         runOnUiThread(new Runnable() {
 
+            @RequiresApi(api = Build.VERSION_CODES.O)
             @Override
             public void run() {
-                authKey = Utils.readAuthKey(getApplicationContext());
+                authKey = Utils.readAuthKey();
                 if (!authKey.equals("empty")) {
                     Log.d(TAG, "extracted  authKey -> " + authKey);
                     authKeyStatus = true;
                     Log.d(TAG, "extracted  credentials -> " + authKey);
                     try {
                         BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
-                        Bitmap bitmap = barcodeEncoder.encodeBitmap(authKey, BarcodeFormat.QR_CODE,
+                        String encryptedQRCode = Crypto.encrypt(authKey);
+
+                        Bitmap bitmap = barcodeEncoder.encodeBitmap(encryptedQRCode, BarcodeFormat.QR_CODE,
                                 400, 400);
                         ImageView imageViewQrCode = (ImageView) findViewById(R.id.qrimage);
                         imageViewQrCode.setImageBitmap(bitmap);
@@ -665,21 +687,26 @@ public class MainActivity extends Activity {
                 OkHttpClient client = new OkHttpClient();
                 client.newCall(request).enqueue(new Callback() {
 
+                    @RequiresApi(api = Build.VERSION_CODES.O)
                     @Override
                     public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
                         result[0] = Objects.requireNonNull(response.body()).string();
                         Log.d(TAG, "get authKey from server -> " + result[0]);
                         MainActivity.authKey = result[0];
                         Log.d(TAG, "REST Auth result " + MainActivity.authKey);
-                        Utils.writeAuthKey(MainActivity.authKey, getApplicationContext());
+                        Utils.writeAuthKey(MainActivity.authKey);
                         try {
                             BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
-                            Bitmap bitmap = barcodeEncoder.encodeBitmap(result[0], BarcodeFormat.QR_CODE,
+                            String encryptedQRCode = Crypto.encrypt(result[0]);
+
+                            Bitmap bitmap = barcodeEncoder.encodeBitmap(encryptedQRCode, BarcodeFormat.QR_CODE,
                                     400, 400);
                             ImageView imageViewQrCode = (ImageView) findViewById(R.id.qrimage);
                             imageViewQrCode.setImageBitmap(bitmap);
                             //todo check here , need to validate response?
                             authKeyStatus = true;
+
+
                             handler.post(new Runnable() {
                                 public void run() {
                                     userNameText.setVisibility(View.INVISIBLE);
@@ -692,6 +719,7 @@ public class MainActivity extends Activity {
                                     resetCodeButton.setVisibility(View.VISIBLE);
                                 }
                             });
+
 
                         } catch (Exception e) {
                             e.printStackTrace();
