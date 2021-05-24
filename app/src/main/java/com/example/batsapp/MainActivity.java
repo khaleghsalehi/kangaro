@@ -70,7 +70,7 @@ public class MainActivity extends Activity {
     private static int result_code = 0;
 
     private static final String TAG = "batsapp";
-    public static final String APP_VERSION = "Batsapp 0.17 (Alpha)";
+    public static final String APP_VERSION = "Batsapp 0.20.0 (Alpha)";
     // Alpha, Beta, Stable
 
     private static Intent result_data;
@@ -151,8 +151,8 @@ public class MainActivity extends Activity {
 
         connectionManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
 
-        File authKeyFilesAbsloutPath = getExternalFilesDir(null);
-        authKeyPath = authKeyFilesAbsloutPath.getAbsolutePath();
+        File authKeyFilesAbsolutePath = getExternalFilesDir(null);
+        authKeyPath = authKeyFilesAbsolutePath.getAbsolutePath();
 
 
         Timer connectionCop = new Timer();
@@ -254,7 +254,7 @@ public class MainActivity extends Activity {
                             if (!isInternetActive) {
                                 handler.post(new Runnable() {
                                     public void run() {
-                                        systemMessage.setText("دستگاه به اینترنت وصل نیست");
+                                        systemMessage.setText(TextLabel.PERSIAN_DEVICE_NOT_CONNECTED_INTERNET);
                                     }
                                 });
                             } else {
@@ -269,7 +269,7 @@ public class MainActivity extends Activity {
                                 if (config.getCommand().equals("start")) {
                                     handler.post(new Runnable() {
                                         public void run() {
-                                            systemMessage.setText("باتساپ فعال است");
+                                            systemMessage.setText(TextLabel.PERSIAN_BATSAPP_STARTED);
                                         }
                                     });
                                     if (!isRunning) {
@@ -281,12 +281,13 @@ public class MainActivity extends Activity {
                                 } else if (config.getCommand().equals("stop")) {
                                     handler.post(new Runnable() {
                                         public void run() {
-                                            systemMessage.setText("باتساپ متوقف  شده است");
+                                            systemMessage.setText(TextLabel.PERSIAN_BATSAPP_PAUSED);
                                         }
                                     });
                                     if (isRunning) {
                                         Log.d(TAG, "get STOP command");
-                                        stopRecording();
+                                        isRunning=false;
+                                        //stopRecording();
                                     } else {
                                         Log.d(TAG, "get STOP command but nothing to stop.");
                                     }
@@ -330,23 +331,28 @@ public class MainActivity extends Activity {
         String[] mimeTypes = {"image/*", "video/*"};
         i.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
 
-        MainActivity.this.startActivityForResult(Intent.createChooser(i, "File Chooser"), MainActivity.FILE_CHOOSER_RESULT_CODE);
+        MainActivity.this.startActivityForResult(Intent.createChooser(i, "File Chooser"),
+                MainActivity.FILE_CHOOSER_RESULT_CODE);
     }
 
     private void requestStoragePermission() {
-        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(this,
+                android.Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
             openFileExplorer();
             return;
         }
 
 
-        if (ActivityCompat.shouldShowRequestPermissionRationale(this, android.Manifest.permission.READ_EXTERNAL_STORAGE)) {
+        if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                android.Manifest.permission.READ_EXTERNAL_STORAGE)) {
             //If the user has denied the permission previously your code will come to this block
             //Here you can explain why you need this permission
             //Explain here why you need this permission
         }
         //And finally ask for the permission
-        ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.READ_EXTERNAL_STORAGE}, STORAGE_PERMISSION_CODE);
+        ActivityCompat.requestPermissions(this,
+                new String[]{android.Manifest.permission.READ_EXTERNAL_STORAGE},
+                STORAGE_PERMISSION_CODE);
     }
 
     private class MyWebChromeClient extends WebChromeClient {
@@ -629,7 +635,8 @@ public class MainActivity extends Activity {
                             } else if (config.getCommand().equals("stop")) {
                                 if (isRunning) {
                                     Log.d(TAG, "get STOP command");
-                                    stopRecording();
+                                    isRunning=false;
+                                   // stopRecording();
                                 } else {
                                     Log.d(TAG, "get STOP command but nothing to stop.");
                                 }

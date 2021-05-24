@@ -46,7 +46,7 @@ public class WatchDog extends Service {
     private static Intent result_data;
     private static int IMAGES_PRODUCED;
 
-   // public static String filesPath = "";
+    // public static String filesPath = "";
 
     private MediaProjection mMediaProjection;
     private String mStoreDir;
@@ -96,8 +96,12 @@ public class WatchDog extends Service {
 
         @Override
         public void onImageAvailable(ImageReader reader) {
-
-
+            Log.d(TAG, "*** GETCOMMAND  *** " + MainActivity.config.getCommand());
+            // if (MainActivity.config.getCommand().equals("stop")) {
+            //   Log.d(TAG, "************* Parents set STOP command, return onImageAvailable ");
+            // } else if ((MainActivity.config.getCommand().equals("start")))
+            // {
+            //  Log.d(TAG, "************* Parents set START command, go to get Screenshot... ");
             FileOutputStream fos = null;
             Bitmap bitmap = null;
             try (Image image = mImageReader.acquireLatestImage()) {
@@ -115,16 +119,20 @@ public class WatchDog extends Service {
                     bitmap.copyPixelsFromBuffer(buffer);
 
                     // write bitmap to a file
-                    long now = date.getTime();
 
-                    String s = MainActivity.PREFIX_FILE_NAME + IMAGES_PRODUCED;
-                    String fullFileName = MainActivity.filesPath + "/" + s + "_" + now + ".jpg";
-                    Log.d(TAG, "====== selecte file name -> " + fullFileName);
-                    fos = new FileOutputStream(fullFileName);
-                    bitmap.compress(Bitmap.CompressFormat.JPEG, MainActivity.config.getImageQuality(), fos);
+                    if (MainActivity.config.getCommand().equals("start")) {
+                        long now = date.getTime();
 
-                    IMAGES_PRODUCED++;
-                    Log.d(TAG, "captured image: " + fullFileName);
+                        String s = MainActivity.PREFIX_FILE_NAME + IMAGES_PRODUCED;
+                        String fullFileName = MainActivity.filesPath + "/" + s + "_" + now + ".jpg";
+                        Log.d(TAG, "****************** selecte file name -> " + fullFileName);
+                        fos = new FileOutputStream(fullFileName);
+                        bitmap.compress(Bitmap.CompressFormat.JPEG, MainActivity.config.getImageQuality(), fos);
+
+                        IMAGES_PRODUCED++;
+                        Log.d(TAG, "captured image: " + fullFileName);
+
+                    }
                 }
 
             } catch (Exception e) {
@@ -143,7 +151,6 @@ public class WatchDog extends Service {
                 }
 
             }
-
             try {
                 int screenShotDelay = MainActivity.config.getScreenShotDelay();
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -155,6 +162,7 @@ public class WatchDog extends Service {
             }
 
         }
+        // }
     }
 
     private class OrientationChangeCallback extends OrientationEventListener {
@@ -323,10 +331,10 @@ public class WatchDog extends Service {
     }
 
     @Override
-    public void onTaskRemoved( Intent rootIntent ) {
-        Intent intent = new Intent( this, MainActivity.class );
-        intent.addFlags( Intent.FLAG_ACTIVITY_NEW_TASK );
-        startActivity( intent );
+    public void onTaskRemoved(Intent rootIntent) {
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
     }
 
     @Override

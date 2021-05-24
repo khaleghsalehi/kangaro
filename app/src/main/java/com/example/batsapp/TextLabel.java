@@ -5,4 +5,9 @@ public class TextLabel {
     public static final String PERSIAN_OK = "تایید";
     public static final String PERSIAN_CANCEL = "لغو";
     public static final String PERSIAN_ENTER_PASSWORD = "کلمه عبور را وارد کنید";
+    public static final String PERSIAN_BATSAPP_STARTED="باتساپ فعال است";
+    public static final String PERSIAN_BATSAPP_PAUSED="باتساپ متوقف شده است";
+    public static final String PERSIAN_DEVICE_NOT_CONNECTED_INTERNET="دستگاه به اینترنت وصل نیست";
+
+
 }
