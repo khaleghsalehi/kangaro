@@ -36,6 +36,7 @@ import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.example.batsapp.device.AppConfig;
 import com.example.batsapp.network.ConnectionManager;
 import com.google.zxing.BarcodeFormat;
 import com.journeyapps.barcodescanner.BarcodeEncoder;
@@ -43,12 +44,9 @@ import com.journeyapps.barcodescanner.BarcodeEncoder;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Objects;
-import java.util.Scanner;
 import java.util.Timer;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -73,7 +71,7 @@ public class MainActivity extends Activity {
     private static int result_code = 0;
 
     private static final String TAG = "batsapp";
-    public static final String APP_VERSION = "Batsapp 0.20.0 (Alpha)";
+    public static final String APP_VERSION = "Batsapp 0.21 (Alpha)";
     // Alpha, Beta, Stable
 
     private static Intent result_data;
@@ -151,26 +149,15 @@ public class MainActivity extends Activity {
     @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        String mode = "Nothing";
-        File configAbsolutePath = getExternalFilesDir(null);
-        String configAddress = configAbsolutePath.getAbsolutePath() + "/" + "config.hex";
-        File cfgFile = new File(configAddress);
-        if (cfgFile.exists()) {
-            Scanner fileReader = null;
-            try {
-                fileReader = new Scanner(cfgFile);
-                mode = fileReader.nextLine();
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            }
-        }
+        File authKeyFilesAbsolutePath = getExternalFilesDir(null);
+        authKeyPath = authKeyFilesAbsolutePath.getAbsolutePath();
 
-
+        AppConfig appConfig = Utils.readAppConfig();
+        String mode = appConfig.getMode();
         if (mode.equals("KID")) {
             connectionManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
 
-            File authKeyFilesAbsolutePath = getExternalFilesDir(null);
-            authKeyPath = authKeyFilesAbsolutePath.getAbsolutePath();
+
 
 
             Timer connectionCop = new Timer();
@@ -220,7 +207,7 @@ public class MainActivity extends Activity {
                 @Override
                 public void run() {
                     authKey = Utils.readAuthKey();
-                    if (!authKey.equals("empty")) {
+                    if (!authKey.equals("")) {
                         Log.d(TAG, "extracted  authKey -> " + authKey);
                         authKeyStatus = true;
 
@@ -234,7 +221,6 @@ public class MainActivity extends Activity {
 
                         systemMessage.setVisibility(View.VISIBLE);
 
-                        Log.d(TAG, "extracted  credentials -> " + authKey);
                         try {
                             BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
                             String encryptedQRCode = Crypto.encrypt(authKey);
@@ -488,58 +474,17 @@ public class MainActivity extends Activity {
     }
 
     public void parentalMode(View view) {
-        File configAbsolutePath = getExternalFilesDir(null);
-        String configAddress = configAbsolutePath.getAbsolutePath() + "/" + "config.hex";
-        try {
-            Log.d(TAG, "AUTH_KEY_FILE_NAME path " + configAddress);
-            File file = new File(configAddress);
-            FileWriter fileWriter = new FileWriter(configAddress);
-            if (!file.exists()) {
-                Log.d(TAG, "authKey created");
-                if (file.createNewFile()) {
-                    fileWriter.write("PARENT");
-                }
-            } else {
-                fileWriter.write("PARENT");
-            }
-            Log.d(TAG, "config write");
-            fileWriter.close();
-            // reset
-            Utils.resetBatsapp(getApplicationContext());
-
-
-        } catch (IOException e) {
-            Log.d(TAG, "Oops! config write failed: ");
-            e.printStackTrace();
-        }
+        AppConfig appConfig = new AppConfig();
+        appConfig.setMode("PARENT");
+        Utils.writeAppConfig(appConfig);
+        Utils.resetBatsapp(getApplicationContext());
     }
 
     public void kidsMode(View view) {
-        File configAbsolutePath = getExternalFilesDir(null);
-        String configAddress = configAbsolutePath.getAbsolutePath() + "/" + "config.hex";
-        try {
-            Log.d(TAG, "AUTH_KEY_FILE_NAME path " + configAddress);
-            File file = new File(configAddress);
-            FileWriter fileWriter = new FileWriter(configAddress);
-            if (!file.exists()) {
-                Log.d(TAG, "authKey created");
-                if (file.createNewFile()) {
-                    fileWriter.write("KID");
-                }
-            } else {
-                fileWriter.write("KID");
-            }
-            Log.d(TAG, "config write");
-            fileWriter.close();
-
-            // reset
-            Utils.resetBatsapp(getApplicationContext());
-
-
-        } catch (IOException e) {
-            Log.d(TAG, "Oops! config write failed: ");
-            e.printStackTrace();
-        }
+        AppConfig appConfig = new AppConfig();
+        appConfig.setMode("KID");
+        Utils.writeAppConfig(appConfig);
+        Utils.resetBatsapp(getApplicationContext());
     }
 
 

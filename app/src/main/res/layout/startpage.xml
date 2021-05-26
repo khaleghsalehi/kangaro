@@ -59,7 +59,7 @@
         android:layout_gravity="center"
         android:background="@color/zxing_viewfinder_laser"
         android:onClick="parentalMode"
-        android:text="مشاهده فعالیت‌های کودک (والدین)"
+        android:text="تنظیم برنامه برای والدین (گوشی والدین)"
         android:textColor="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintHorizontal_bias="0.755"
@@ -83,7 +83,7 @@
         android:layout_marginRight="15dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:text="این بخش برای فعال کردن گوشی کودک برای کنترل است."
+        android:text="این بخش برای  فعال کردن برنامه در مد کودک است"
         android:textSize="16dp">
     </TextView>
     <View
@@ -97,7 +97,7 @@
         android:layout_gravity="center"
         android:background="@color/zxing_viewfinder_laser"
         android:onClick="kidsMode"
-        android:text="کنترل کودک ( گوشی کودک)"
+        android:text=" تنظیم برنامه برای کنترل کودک ( گوشی کودک)"
         android:textColor="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintHorizontal_bias="0.755"
@@ -118,14 +118,6 @@
         android:layout_gravity="center"
         android:text="Powerd by BatsApp"
         android:textSize="16dp">
-
-    </TextView>
-    <TextView
-        android:id="@+id/appVersion"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:text="نسخه: ---">
 
     </TextView>
 

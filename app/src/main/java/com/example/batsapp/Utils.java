@@ -9,16 +9,19 @@ import android.util.Log;
 
 import androidx.annotation.RequiresApi;
 
+import com.example.batsapp.device.AppConfig;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Scanner;
 
 public class Utils {
     private static final String AUTH_KEY_FILE_NAME = MainActivity.authKeyPath + "/" + "authKey.data";
@@ -62,42 +65,16 @@ public class Utils {
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     public static String readAuthKey() {
-
-
-        String ret = "empty";
-        try {
-            Log.d(TAG, "AUTH_KEY_FILE_NAME path " + AUTH_KEY_FILE_NAME);
-            File authKeyFile = new File(AUTH_KEY_FILE_NAME);
-            Scanner fileReader = new Scanner(authKeyFile);
-            ret = Crypto.decrypt(fileReader.nextLine());
-            Log.d(TAG, "read authKey from file " + ret);
-        } catch (FileNotFoundException e) {
-            Log.d(TAG, "Error, authKey not found");
-        }
-        return ret;
+        AppConfig appConfig = readAppConfig();
+        return Crypto.decrypt(appConfig.getAuthKey());
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     public static void writeAuthKey(String data) {
-        try {
-            Log.d(TAG, "AUTH_KEY_FILE_NAME path " + AUTH_KEY_FILE_NAME);
-            File file = new File(AUTH_KEY_FILE_NAME);
-            FileWriter fileWriter = new FileWriter(AUTH_KEY_FILE_NAME);
-            if (!file.exists()) {
-                Log.d(TAG, "authKey created");
-                if (file.createNewFile()) {
-                    fileWriter.write(data);
-                }
-            } else {
-                fileWriter.write(Crypto.encrypt(data));
-            }
-            Log.d(TAG, "authKey write");
-            fileWriter.close();
-
-        } catch (IOException e) {
-            Log.d(TAG, "Oops! authKey write failed: ");
-            e.printStackTrace();
-        }
+        AppConfig appconfig = readAppConfig();
+        appconfig.setMode(appconfig.getMode());
+        appconfig.setAuthKey(Crypto.encrypt(data));
+        writeAppConfig(appconfig);
     }
 
 
@@ -108,7 +85,7 @@ public class Utils {
         return String.format("%040x", new BigInteger(1, digest.digest()));
     }
 
-    public static void resetBatsapp(Context context){
+    public static void resetBatsapp(Context context) {
         Log.d(TAG, "reload batsapp...");
         Intent mStartActivity = new Intent(context, MainActivity.class);
         int mPendingIntentId = 123456;
@@ -117,4 +94,56 @@ public class Utils {
         mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 100, mPendingIntent);
         System.exit(0);
     }
+
+
+    public static AppConfig readAppConfig() {
+        String configAddress = MainActivity.authKeyPath + "/" + "app.cfg";
+        try {
+            File file = new File(configAddress);
+            if (!file.exists())
+                if (file.createNewFile())
+                    Log.d(TAG, "appConfig not found, initialized...");
+            FileInputStream f = new FileInputStream(file);
+            ObjectInputStream oi = new ObjectInputStream(f);
+
+            try {
+                return (AppConfig) oi.readObject();
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+
+        } catch (FileNotFoundException e) {
+            System.out.println("File not found");
+
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return new AppConfig();
+    }
+
+    public static void writeAppConfig(AppConfig appConfig) {
+        String configAddress = MainActivity.authKeyPath + "/" + "app.cfg";
+        try {
+            File file = new File(configAddress);
+            if (!file.exists())
+                if (file.createNewFile())
+                    Log.d(TAG, "config file initialized.");
+            FileOutputStream f = new FileOutputStream(file);
+            ObjectOutputStream o = new ObjectOutputStream(f);
+
+            // Write objects to file
+            o.writeObject(appConfig);
+
+            o.close();
+            f.close();
+
+        } catch (FileNotFoundException e) {
+            System.out.println("File not found");
+        } catch (IOException e) {
+            System.out.println("Error initializing stream");
+        }
+    }
+
+
 }
