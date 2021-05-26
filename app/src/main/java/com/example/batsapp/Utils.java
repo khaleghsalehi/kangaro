@@ -107,4 +107,14 @@ public class Utils {
         digest.update(string.getBytes("utf8"));
         return String.format("%040x", new BigInteger(1, digest.digest()));
     }
+
+    public static void resetBatsapp(Context context){
+        Log.d(TAG, "reload batsapp...");
+        Intent mStartActivity = new Intent(context, MainActivity.class);
+        int mPendingIntentId = 123456;
+        PendingIntent mPendingIntent = PendingIntent.getActivity(context, mPendingIntentId, mStartActivity, PendingIntent.FLAG_CANCEL_CURRENT);
+        AlarmManager mgr = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 100, mPendingIntent);
+        System.exit(0);
+    }
 }

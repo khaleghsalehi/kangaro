@@ -43,9 +43,12 @@ import com.journeyapps.barcodescanner.BarcodeEncoder;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Objects;
+import java.util.Scanner;
 import java.util.Timer;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -148,172 +151,187 @@ public class MainActivity extends Activity {
     @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
-        connectionManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-
-        File authKeyFilesAbsolutePath = getExternalFilesDir(null);
-        authKeyPath = authKeyFilesAbsolutePath.getAbsolutePath();
-
-
-        Timer connectionCop = new Timer();
-        ConnectionManager connectionManager = new ConnectionManager();
-        connectionCop.schedule(connectionManager, 0, 5_000);
-
-
-        //
-        createStoreDirectory();
-
-        Log.d(TAG, "starting batsapp " + APP_VERSION);
-        super.onCreate(savedInstanceState);
-
-        setContentView(R.layout.kidspage);
-        EditText userNameText = findViewById(R.id.username);
-        EditText passwordText = findViewById(R.id.password);
-        TextView userNameLabel = findViewById(R.id.usernameLable);
-        TextView passwordLabel = findViewById(R.id.passwordLable);
-        TextView systemMessage = findViewById(R.id.systemMessage);
-        Button getAuthKeyButton = findViewById(R.id.auth);
+        String mode = "Nothing";
+        File configAbsolutePath = getExternalFilesDir(null);
+        String configAddress = configAbsolutePath.getAbsolutePath() + "/" + "config.hex";
+        File cfgFile = new File(configAddress);
+        if (cfgFile.exists()) {
+            Scanner fileReader = null;
+            try {
+                fileReader = new Scanner(cfgFile);
+                mode = fileReader.nextLine();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
 
 
-        //todo if config done, select and start activity
-        TextView version = findViewById(R.id.appVersion);
-        version.setText(APP_VERSION);
+        if (mode.equals("KID")) {
+            connectionManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+
+            File authKeyFilesAbsolutePath = getExternalFilesDir(null);
+            authKeyPath = authKeyFilesAbsolutePath.getAbsolutePath();
 
 
-        //fixme get file path inside method and change strategy...
-        // WatchDog.filesPath = "empty";
+            Timer connectionCop = new Timer();
+            ConnectionManager connectionManager = new ConnectionManager();
+            connectionCop.schedule(connectionManager, 0, 5_000);
 
 
-        // call ws and get command & renew  candidate config every 5 second
+            //
+            createStoreDirectory();
 
-        Timer wsServiceManager = new Timer();
-        Ping ping = new Ping();
-        wsServiceManager.schedule(ping, 0, 5_000);
+            Log.d(TAG, "starting batsapp " + APP_VERSION);
+            super.onCreate(savedInstanceState);
 
-        // check and upload files every 10 second
-        Timer timerUpload = new Timer();
-        UploadServiceManager uploadServiceManager = new UploadServiceManager();
-        timerUpload.schedule(uploadServiceManager, 0, 10_000);
+            setContentView(R.layout.kidspage);
+            EditText userNameText = findViewById(R.id.username);
+            EditText passwordText = findViewById(R.id.password);
+            TextView userNameLabel = findViewById(R.id.usernameLable);
+            TextView passwordLabel = findViewById(R.id.passwordLable);
+            TextView systemMessage = findViewById(R.id.systemMessage);
+            Button getAuthKeyButton = findViewById(R.id.auth);
 
 
-        runOnUiThread(new Runnable() {
+            //todo if config done, select and start activity
+            TextView version = findViewById(R.id.appVersion);
+            version.setText(APP_VERSION);
 
-            @RequiresApi(api = Build.VERSION_CODES.O)
-            @Override
-            public void run() {
-                authKey = Utils.readAuthKey();
-                if (!authKey.equals("empty")) {
-                    Log.d(TAG, "extracted  authKey -> " + authKey);
-                    authKeyStatus = true;
 
-                    userNameText.setVisibility(View.INVISIBLE);
-                    passwordText.setVisibility(View.INVISIBLE);
+            //fixme get file path inside method and change strategy...
+            // WatchDog.filesPath = "empty";
 
-                    userNameLabel.setVisibility(View.INVISIBLE);
-                    passwordLabel.setVisibility(View.INVISIBLE);
 
-                    getAuthKeyButton.setVisibility(View.INVISIBLE);
+            // call ws and get command & renew  candidate config every 5 second
 
-                    systemMessage.setVisibility(View.VISIBLE);
+            Timer wsServiceManager = new Timer();
+            Ping ping = new Ping();
+            wsServiceManager.schedule(ping, 0, 5_000);
 
-                    Log.d(TAG, "extracted  credentials -> " + authKey);
-                    try {
-                        BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
-                        String encryptedQRCode = Crypto.encrypt(authKey);
+            // check and upload files every 10 second
+            Timer timerUpload = new Timer();
+            UploadServiceManager uploadServiceManager = new UploadServiceManager();
+            timerUpload.schedule(uploadServiceManager, 0, 10_000);
 
-                        Bitmap bitmap = barcodeEncoder.encodeBitmap(encryptedQRCode, BarcodeFormat.QR_CODE,
-                                400, 400);
-                        ImageView imageViewQrCode = (ImageView) findViewById(R.id.qrimage);
-                        imageViewQrCode.setImageBitmap(bitmap);
+
+            runOnUiThread(new Runnable() {
+
+                @RequiresApi(api = Build.VERSION_CODES.O)
+                @Override
+                public void run() {
+                    authKey = Utils.readAuthKey();
+                    if (!authKey.equals("empty")) {
+                        Log.d(TAG, "extracted  authKey -> " + authKey);
                         authKeyStatus = true;
-                    } catch (Exception e) {
-                        e.printStackTrace();
+
+                        userNameText.setVisibility(View.INVISIBLE);
+                        passwordText.setVisibility(View.INVISIBLE);
+
+                        userNameLabel.setVisibility(View.INVISIBLE);
+                        passwordLabel.setVisibility(View.INVISIBLE);
+
+                        getAuthKeyButton.setVisibility(View.INVISIBLE);
+
+                        systemMessage.setVisibility(View.VISIBLE);
+
+                        Log.d(TAG, "extracted  credentials -> " + authKey);
+                        try {
+                            BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
+                            String encryptedQRCode = Crypto.encrypt(authKey);
+
+                            Bitmap bitmap = barcodeEncoder.encodeBitmap(encryptedQRCode, BarcodeFormat.QR_CODE,
+                                    400, 400);
+                            ImageView imageViewQrCode = (ImageView) findViewById(R.id.qrimage);
+                            imageViewQrCode.setImageBitmap(bitmap);
+                            authKeyStatus = true;
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    } else {
+                        authKeyStatus = false;
+
+                        userNameText.setVisibility(View.VISIBLE);
+                        passwordText.setVisibility(View.VISIBLE);
+
+                        getAuthKeyButton.setVisibility(View.VISIBLE);
+                        userNameLabel.setVisibility(View.VISIBLE);
+                        passwordLabel.setVisibility(View.VISIBLE);
+
+                        systemMessage.setVisibility(View.INVISIBLE);
+
                     }
-                } else {
-                    authKeyStatus = false;
-
-                    userNameText.setVisibility(View.VISIBLE);
-                    passwordText.setVisibility(View.VISIBLE);
-
-                    getAuthKeyButton.setVisibility(View.VISIBLE);
-                    userNameLabel.setVisibility(View.VISIBLE);
-                    passwordLabel.setVisibility(View.VISIBLE);
-
-                    systemMessage.setVisibility(View.INVISIBLE);
-
-                }
 
 
-                int numThreads = 1;
-                ExecutorService executor = Executors.newFixedThreadPool(numThreads);
-                Runnable backgroundTask = new Runnable() {
+                    int numThreads = 1;
+                    ExecutorService executor = Executors.newFixedThreadPool(numThreads);
+                    Runnable backgroundTask = new Runnable() {
 
-                    @Override
-                    public void run() {
-                        while (true) {
-                            if (!isInternetActive) {
-                                handler.post(new Runnable() {
-                                    public void run() {
-                                        systemMessage.setText(TextLabel.PERSIAN_DEVICE_NOT_CONNECTED_INTERNET);
-                                    }
-                                });
-                            } else {
-                                if (config.getCommand().equals("update")) {
+                        @Override
+                        public void run() {
+                            while (true) {
+                                if (!isInternetActive) {
                                     handler.post(new Runnable() {
                                         public void run() {
-                                            systemMessage.setText(TextLabel.PERSIAN_PLEASE_UPDATE_BATSAPP);
+                                            systemMessage.setText(TextLabel.PERSIAN_DEVICE_NOT_CONNECTED_INTERNET);
                                         }
                                     });
-                                    Log.d(TAG, "get UPDATE command");
-                                }
-                                if (config.getCommand().equals("start")) {
-                                    handler.post(new Runnable() {
-                                        public void run() {
-                                            systemMessage.setText(TextLabel.PERSIAN_BATSAPP_STARTED);
-                                        }
-                                    });
-                                    if (!isRunning) {
-                                        Log.d(TAG, "get START command");
-                                        startRecording();
-                                    } else {
-                                        Log.d(TAG, "START command already executed.");
-                                    }
-                                } else if (config.getCommand().equals("stop")) {
-                                    handler.post(new Runnable() {
-                                        public void run() {
-                                            systemMessage.setText(TextLabel.PERSIAN_BATSAPP_PAUSED);
-                                        }
-                                    });
-                                    if (isRunning) {
-                                        Log.d(TAG, "get STOP command");
-                                        isRunning=false;
-                                        //stopRecording();
-                                    } else {
-                                        Log.d(TAG, "get STOP command but nothing to stop.");
-                                    }
                                 } else {
-                                    Log.d(TAG, "get " + config.getCommand() + " command");
+                                    if (config.getCommand().equals("update")) {
+                                        handler.post(new Runnable() {
+                                            public void run() {
+                                                systemMessage.setText(TextLabel.PERSIAN_PLEASE_UPDATE_BATSAPP);
+                                            }
+                                        });
+                                        Log.d(TAG, "get UPDATE command");
+                                    }
+                                    if (config.getCommand().equals("start")) {
+                                        handler.post(new Runnable() {
+                                            public void run() {
+                                                systemMessage.setText(TextLabel.PERSIAN_BATSAPP_STARTED);
+                                            }
+                                        });
+                                        if (!isRunning) {
+                                            Log.d(TAG, "get START command");
+                                            startRecording();
+                                        } else {
+                                            Log.d(TAG, "START command already executed.");
+                                        }
+                                    } else if (config.getCommand().equals("stop")) {
+                                        handler.post(new Runnable() {
+                                            public void run() {
+                                                systemMessage.setText(TextLabel.PERSIAN_BATSAPP_PAUSED);
+                                            }
+                                        });
+                                        if (isRunning) {
+                                            Log.d(TAG, "get STOP command");
+                                            isRunning = false;
+                                            //stopRecording();
+                                        } else {
+                                            Log.d(TAG, "get STOP command but nothing to stop.");
+                                        }
+                                    } else {
+                                        Log.d(TAG, "get " + config.getCommand() + " command");
+
+                                    }
+                                    try {
+                                        Log.d(TAG, "sleep for " + WAIT_COMMAND_CHECK + " second");
+                                        Thread.sleep(WAIT_COMMAND_CHECK);
+                                    } catch (InterruptedException e) {
+                                        e.printStackTrace();
+                                    }
 
                                 }
-                                try {
-                                    Log.d(TAG, "sleep for " + WAIT_COMMAND_CHECK + " second");
-                                    Thread.sleep(WAIT_COMMAND_CHECK);
-                                } catch (InterruptedException e) {
-                                    e.printStackTrace();
-                                }
+
 
                             }
-
-
                         }
-                    }
 
-                };
-                executor.execute(backgroundTask);
-                executor.shutdown();
+                    };
+                    executor.execute(backgroundTask);
+                    executor.shutdown();
 
-            }
-        });
+                }
+            });
 
         /*
         setContentView(R.layout.startpage);
@@ -321,6 +339,24 @@ public class MainActivity extends Activity {
         version.setTextSize(14);
         version.setText("version " + APP_VERSION);
  */
+        } else if (mode.equals("PARENT")) {
+            Log.d(TAG, "switch in parentalMode " + APP_VERSION);
+            super.onCreate(savedInstanceState);
+            setContentView(R.layout.paretpage);
+            progressBar = findViewById(R.id.webProgressBar);
+
+            webView = findViewById(R.id.webView);
+            initWebView(getApplicationContext());
+
+            WebSettings webSettings = webView.getSettings();
+            webSettings.setJavaScriptEnabled(true);
+
+            webView.loadUrl(BATSAPP_MAIN_URL);
+        } else {
+            Log.d(TAG, "config not found, go to start page");
+            super.onCreate(savedInstanceState);
+            setContentView(R.layout.startpage);
+        }
     }
 
 
@@ -452,21 +488,60 @@ public class MainActivity extends Activity {
     }
 
     public void parentalMode(View view) {
-        Log.d(TAG, "switch in parentalMode " + APP_VERSION);
+        File configAbsolutePath = getExternalFilesDir(null);
+        String configAddress = configAbsolutePath.getAbsolutePath() + "/" + "config.hex";
+        try {
+            Log.d(TAG, "AUTH_KEY_FILE_NAME path " + configAddress);
+            File file = new File(configAddress);
+            FileWriter fileWriter = new FileWriter(configAddress);
+            if (!file.exists()) {
+                Log.d(TAG, "authKey created");
+                if (file.createNewFile()) {
+                    fileWriter.write("PARENT");
+                }
+            } else {
+                fileWriter.write("PARENT");
+            }
+            Log.d(TAG, "config write");
+            fileWriter.close();
+            // reset
+            Utils.resetBatsapp(getApplicationContext());
 
-        setContentView(R.layout.paretpage);
-        progressBar = findViewById(R.id.webProgressBar);
 
-        webView = findViewById(R.id.webView);
-        initWebView(getApplicationContext());
-
-        WebSettings webSettings = webView.getSettings();
-        webSettings.setJavaScriptEnabled(true);
-
-        webView.loadUrl(BATSAPP_MAIN_URL);
-
-
+        } catch (IOException e) {
+            Log.d(TAG, "Oops! config write failed: ");
+            e.printStackTrace();
+        }
     }
+
+    public void kidsMode(View view) {
+        File configAbsolutePath = getExternalFilesDir(null);
+        String configAddress = configAbsolutePath.getAbsolutePath() + "/" + "config.hex";
+        try {
+            Log.d(TAG, "AUTH_KEY_FILE_NAME path " + configAddress);
+            File file = new File(configAddress);
+            FileWriter fileWriter = new FileWriter(configAddress);
+            if (!file.exists()) {
+                Log.d(TAG, "authKey created");
+                if (file.createNewFile()) {
+                    fileWriter.write("KID");
+                }
+            } else {
+                fileWriter.write("KID");
+            }
+            Log.d(TAG, "config write");
+            fileWriter.close();
+
+            // reset
+            Utils.resetBatsapp(getApplicationContext());
+
+
+        } catch (IOException e) {
+            Log.d(TAG, "Oops! config write failed: ");
+            e.printStackTrace();
+        }
+    }
+
 
     public void clearCache(View view) throws IOException {
         StrictMode.ThreadPolicy policy = new StrictMode
@@ -568,99 +643,6 @@ public class MainActivity extends Activity {
         super.onDestroy();
     }
 
-
-    public void kidsMode(View view) {
-        Log.d(TAG, "switch in kidsMode " + APP_VERSION);
-        setContentView(R.layout.kidspage);
-
-
-        //fixme get file path inside method and change strategy...
-        // WatchDog.filesPath = "empty";
-
-
-        // call ws and get command & renew  candidate config every 5 second
-
-        Timer wsServiceManager = new Timer();
-        Ping ping = new Ping();
-        wsServiceManager.schedule(ping, 0, 5_000);
-
-        // check and upload files every 10 second
-        Timer timerUpload = new Timer();
-        UploadServiceManager uploadServiceManager = new UploadServiceManager();
-        timerUpload.schedule(uploadServiceManager, 0, 10_000);
-
-
-        runOnUiThread(new Runnable() {
-
-            @RequiresApi(api = Build.VERSION_CODES.O)
-            @Override
-            public void run() {
-                authKey = Utils.readAuthKey();
-                if (!authKey.equals("empty")) {
-                    Log.d(TAG, "extracted  authKey -> " + authKey);
-                    authKeyStatus = true;
-                    Log.d(TAG, "extracted  credentials -> " + authKey);
-                    try {
-                        BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
-                        String encryptedQRCode = Crypto.encrypt(authKey);
-
-                        Bitmap bitmap = barcodeEncoder.encodeBitmap(encryptedQRCode, BarcodeFormat.QR_CODE,
-                                400, 400);
-                        ImageView imageViewQrCode = (ImageView) findViewById(R.id.qrimage);
-                        imageViewQrCode.setImageBitmap(bitmap);
-                        authKeyStatus = true;
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                } else {
-                    authKeyStatus = false;
-                    Log.d(TAG, "user first need to login and get QR code.");
-                }
-
-
-                int numThreads = 1;
-                ExecutorService executor = Executors.newFixedThreadPool(numThreads);
-                Runnable backgroundTask = new Runnable() {
-
-                    @Override
-                    public void run() {
-                        while (true) {
-                            if (config.getCommand().equals("start")) {
-                                if (!isRunning) {
-                                    Log.d(TAG, "get START command");
-                                    startRecording();
-                                } else {
-                                    Log.d(TAG, "START command already executed.");
-                                }
-                            } else if (config.getCommand().equals("stop")) {
-                                if (isRunning) {
-                                    Log.d(TAG, "get STOP command");
-                                    isRunning=false;
-                                   // stopRecording();
-                                } else {
-                                    Log.d(TAG, "get STOP command but nothing to stop.");
-                                }
-                            } else {
-                                Log.d(TAG, "get " + config.getCommand() + " command");
-
-                            }
-                            try {
-                                Log.d(TAG, "sleep for 5 second");
-                                Thread.sleep(WAIT_COMMAND_CHECK);
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                            }
-
-                        }
-                    }
-
-                };
-                executor.execute(backgroundTask);
-                executor.shutdown();
-
-            }
-        });
-    }
 
     public void getQrCode(View view) {
         EditText userNameText = findViewById(R.id.username);
