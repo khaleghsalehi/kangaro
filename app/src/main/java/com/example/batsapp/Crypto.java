@@ -17,8 +17,11 @@ import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 
 public class Crypto {
-    private static final String SECRET_KEY = "my_super_secret_key_ho_ho_ho";
-    private static final String SALT = "ssshhhhhhhhhhh!!!!";
+    //todo got password from native, jni
+    private static final String SECRET_KEY = "TE3kY4h9GwyXwGCJzaJJkxUxPyhq";
+    private static final String SALT = "YkbmPwgWCnKnCJX74S";
+
+
     private static final String TAG = "batsapp";
 
     @RequiresApi(api = Build.VERSION_CODES.O)
