@@ -113,7 +113,7 @@ public class Utils {
             }
 
         } catch (FileNotFoundException e) {
-            System.out.println("File not found");
+            Log.d(TAG, "File not found");
 
 
         } catch (IOException e) {
@@ -139,9 +139,9 @@ public class Utils {
             f.close();
 
         } catch (FileNotFoundException e) {
-            System.out.println("File not found");
+            Log.d(TAG, "File not found");
         } catch (IOException e) {
-            System.out.println("Error initializing stream");
+            Log.d(TAG, "Error initializing stream");
         }
     }
 

@@ -17,8 +17,12 @@ public class Ping extends TimerTask {
 
     @Override
     public void run() {
+        if (MainActivity.authKey.equals("")) {
+            Log.d(TAG, "authKey not found or empty");
+            return;
+        }
         if (!MainActivity.isInternetActive) {
-            Log.e(TAG, " =Ping (wa) ignored, no internet connection =");
+            Log.e(TAG, "ping (wa) ignored, no internet connection");
         } else {
             Log.d(TAG, "call whatsup API and get response");
             getConfig();

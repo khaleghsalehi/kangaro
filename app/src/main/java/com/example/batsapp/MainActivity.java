@@ -17,6 +17,7 @@ import android.os.Handler;
 import android.os.StrictMode;
 import android.text.InputType;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.webkit.ValueCallback;
@@ -31,6 +32,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
@@ -71,7 +73,7 @@ public class MainActivity extends Activity {
     private static int result_code = 0;
 
     private static final String TAG = "batsapp";
-    public static final String APP_VERSION = "Batsapp 0.21 (Alpha)";
+    public static final String APP_VERSION = "Batsapp 0.23 (Alpha)";
     // Alpha, Beta, Stable
 
     private static Intent result_data;
@@ -156,8 +158,6 @@ public class MainActivity extends Activity {
         String mode = appConfig.getMode();
         if (mode.equals("KID")) {
             connectionManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-
-
 
 
             Timer connectionCop = new Timer();
@@ -311,7 +311,6 @@ public class MainActivity extends Activity {
 
                             }
                         }
-
                     };
                     executor.execute(backgroundTask);
                     executor.shutdown();
@@ -350,7 +349,7 @@ public class MainActivity extends Activity {
         Intent i = new Intent(Intent.ACTION_GET_CONTENT);
         i.addCategory(Intent.CATEGORY_OPENABLE);
         i.setType("*/*");
-        String[] mimeTypes = {"image/*", "video/*"};
+        String[] mimeTypes = {"image/*", "video/*" };
         i.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
 
         MainActivity.this.startActivityForResult(Intent.createChooser(i, "File Chooser"),
@@ -608,7 +607,7 @@ public class MainActivity extends Activity {
 
                 // authentication  and get authKey
                 String url = MainActivity.REST_AUTH_URL + "?username=" + userName + "&password=" + password;
-                final String[] result = {""};
+                final String[] result = {"" };
                 Request request = new Request.Builder()
                         .addHeader("auth", Security.getToken())
                         .addHeader("ver", Security.getVersion())
@@ -622,36 +621,50 @@ public class MainActivity extends Activity {
                     public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
                         result[0] = Objects.requireNonNull(response.body()).string();
                         Log.d(TAG, "get authKey from server -> " + result[0]);
-                        MainActivity.authKey = result[0];
-                        Log.d(TAG, "REST Auth result " + MainActivity.authKey);
-                        Utils.writeAuthKey(MainActivity.authKey);
-                        try {
-                            BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
-                            String encryptedQRCode = Crypto.encrypt(result[0]);
-
-                            Bitmap bitmap = barcodeEncoder.encodeBitmap(encryptedQRCode, BarcodeFormat.QR_CODE,
-                                    400, 400);
-                            ImageView imageViewQrCode = (ImageView) findViewById(R.id.qrimage);
-                            imageViewQrCode.setImageBitmap(bitmap);
-                            //todo check here , need to validate response?
-                            authKeyStatus = true;
+                        if (!result[0].isEmpty()) {
 
 
+                            MainActivity.authKey = result[0];
+                            Log.d(TAG, "REST Auth result " + MainActivity.authKey);
+                            Utils.writeAuthKey(MainActivity.authKey);
+                            try {
+                                BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
+                                String encryptedQRCode = Crypto.encrypt(result[0]);
+
+                                Bitmap bitmap = barcodeEncoder.encodeBitmap(encryptedQRCode, BarcodeFormat.QR_CODE,
+                                        400, 400);
+                                ImageView imageViewQrCode = (ImageView) findViewById(R.id.qrimage);
+                                imageViewQrCode.setImageBitmap(bitmap);
+                                //todo check here , need to validate response?
+                                authKeyStatus = true;
+
+
+                                handler.post(new Runnable() {
+                                    public void run() {
+                                        userNameText.setVisibility(View.INVISIBLE);
+                                        passwordText.setVisibility(View.INVISIBLE);
+                                        getAuthKeyButton.setVisibility(View.INVISIBLE);
+                                        userNameLabel.setVisibility(View.INVISIBLE);
+                                        passwordLabel.setVisibility(View.INVISIBLE);
+
+                                        systemMessage.setVisibility(View.VISIBLE);
+                                    }
+                                });
+
+
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        } else {
                             handler.post(new Runnable() {
                                 public void run() {
-                                    userNameText.setVisibility(View.INVISIBLE);
-                                    passwordText.setVisibility(View.INVISIBLE);
-                                    getAuthKeyButton.setVisibility(View.INVISIBLE);
-                                    userNameLabel.setVisibility(View.INVISIBLE);
-                                    passwordLabel.setVisibility(View.INVISIBLE);
-
-                                    systemMessage.setVisibility(View.VISIBLE);
+                                    Toast toast = Toast.makeText(getApplicationContext(),
+                                            TextLabel.ERROR_USERNAME_OR_PASSWORD,
+                                            Toast.LENGTH_LONG);
+                                    toast.setGravity(Gravity.CENTER, 0, 0);
+                                    toast.show();
                                 }
                             });
-
-
-                        } catch (Exception e) {
-                            e.printStackTrace();
                         }
                     }
 
@@ -660,6 +673,16 @@ public class MainActivity extends Activity {
                         authKeyStatus = false;
                     }
 
+                });
+            } else {
+                handler.post(new Runnable() {
+                    public void run() {
+                        Toast toast = Toast.makeText(getApplicationContext(),
+                                TextLabel.ERROR_USERNAME_OR_PASSWORD_EMPTY,
+                                Toast.LENGTH_LONG);
+                        toast.setGravity(Gravity.CENTER, 0, 0);
+                        toast.show();
+                    }
                 });
             }
         }
