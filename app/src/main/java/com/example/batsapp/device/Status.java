@@ -16,5 +16,7 @@ public interface Status {
      * @return battery percentage
      */
 
-    public int getBatteryPercentage();
+    public float getBatteryPercentage();
+
+    public int getDeviceTemperate();
 }

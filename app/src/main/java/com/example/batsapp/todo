@@ -1,0 +1,16 @@
+1- support android version 4+
+2- generate QR code in server side
+3- move security oriented task in JNI/C/C++ such as token generator, AES keys
+4- UI/UX enactment, simplify
+5- should detect standby mode / black screen/ unactivated status  and report server
+6- report all of crash/ exception to third parties such as firebase dashboard
+7- check battery status and set ws and thread working status such as change default call periodic
+8- if server send UPDATE command, what's happen?
+9- google analytics
+10- add custom token in parental webview mode
+11- AES password, length and dynamic mode
+12- very hard obfuscation (java)
+13- parent can set random mode for screenshot
+14- alarm or warning parent (send sms) if devices internet is off?
+15- test on various device such as Xiomi, Nokia, Samsung, Huawi, etc.
+16-
