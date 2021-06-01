@@ -73,7 +73,7 @@ public class MainActivity extends Activity {
     private static int result_code = 0;
 
     private static final String TAG = "batsapp";
-    public static final String APP_VERSION = "Batsapp 0.25 (Alpha)";
+    public static final String APP_VERSION = "Batsapp 0.26 (Alpha)";
     // Alpha, Beta, Stable
 
     private static Intent result_data;
@@ -183,6 +183,9 @@ public class MainActivity extends Activity {
             TextView systemMessage = findViewById(R.id.systemMessage);
             Button getAuthKeyButton = findViewById(R.id.auth);
 
+            Button resetApplication = findViewById(R.id.resetApp);
+            // invisible reset button
+            resetApplication.setVisibility(View.INVISIBLE);
 
             //todo if config done, select and start activity
             TextView version = findViewById(R.id.appVersion);
@@ -318,9 +321,13 @@ public class MainActivity extends Activity {
 
                                     if (!MainActivity.screenRecordStatus) {
                                         if (screenRecordStatusCounter > MAX_COUNT_ALLOWED) {
-                                            Log.d(TAG, "screenRecordStatusCounter max, reset app...");
-                                            // Utils.resetBatsapp(getApplicationContext());
-                                            //todo action?
+                                            Log.d(TAG, "screenRecordStatusCounter max ");
+                                            handler.post(new Runnable() {
+                                                public void run() {
+                                                    if (!screenRecordStatus)
+                                                        resetApplication.setVisibility(View.VISIBLE);
+                                                }
+                                            });
                                         } else {
                                             screenRecordStatusCounter =
                                                     screenRecordStatusCounter + 1;
@@ -626,6 +633,10 @@ public class MainActivity extends Activity {
 //        broadcastIntent.setClass(this, RestartService.class);
 //        this.sendBroadcast(broadcastIntent);
         super.onDestroy();
+    }
+
+    public void resetApplication(View view) {
+        Utils.resetBatsapp(getApplicationContext());
     }
 
 
