@@ -96,7 +96,7 @@ public class WatchDog extends Service {
 
         @Override
         public void onImageAvailable(ImageReader reader) {
-            Log.d(TAG, "*** GETCOMMAND  *** " + MainActivity.config.getCommand());
+            Log.d(TAG, "*** GET COMMAND  *** " + MainActivity.config.getCommand());
             // if (MainActivity.config.getCommand().equals("stop")) {
             //   Log.d(TAG, "************* Parents set STOP command, return onImageAvailable ");
             // } else if ((MainActivity.config.getCommand().equals("start")))
@@ -131,6 +131,8 @@ public class WatchDog extends Service {
 
                         IMAGES_PRODUCED++;
                         Log.d(TAG, "captured image: " + fullFileName);
+                        // yup, screenshot work, set canary
+                        MainActivity.screenRecordStatus =true;
 
                     }
                 }

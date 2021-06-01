@@ -73,7 +73,7 @@ public class MainActivity extends Activity {
     private static int result_code = 0;
 
     private static final String TAG = "batsapp";
-    public static final String APP_VERSION = "Batsapp 0.23 (Alpha)";
+    public static final String APP_VERSION = "Batsapp 0.25 (Alpha)";
     // Alpha, Beta, Stable
 
     private static Intent result_data;
@@ -122,6 +122,10 @@ public class MainActivity extends Activity {
     // Device internet status/ management
     public static ConnectivityManager connectionManager = null;
     public static boolean isInternetActive = false;
+
+    //
+    public static boolean screenRecordStatus = false;
+    public static int screenRecordStatusCounter = 0;
 
 
     public MainActivity() {
@@ -210,6 +214,7 @@ public class MainActivity extends Activity {
                     if (!authKey.equals("")) {
                         Log.d(TAG, "extracted  authKey -> " + authKey);
                         authKeyStatus = true;
+                        config.setCommand("start");
 
                         userNameText.setVisibility(View.INVISIBLE);
                         passwordText.setVisibility(View.INVISIBLE);
@@ -235,6 +240,9 @@ public class MainActivity extends Activity {
                         }
                     } else {
                         authKeyStatus = false;
+
+                        // authKey nullOrEmpty,  set capture status true
+                        screenRecordStatus = true;
 
                         userNameText.setVisibility(View.VISIBLE);
                         passwordText.setVisibility(View.VISIBLE);
@@ -262,42 +270,75 @@ public class MainActivity extends Activity {
                                         }
                                     });
                                 } else {
-                                    if (config.getCommand().equals("update")) {
-                                        handler.post(new Runnable() {
-                                            public void run() {
-                                                systemMessage.setText(TextLabel.PERSIAN_PLEASE_UPDATE_BATSAPP);
-                                            }
-                                        });
-                                        Log.d(TAG, "get UPDATE command");
-                                    }
-                                    if (config.getCommand().equals("start")) {
-                                        handler.post(new Runnable() {
-                                            public void run() {
-                                                systemMessage.setText(TextLabel.PERSIAN_BATSAPP_STARTED);
-                                            }
-                                        });
-                                        if (!isRunning) {
-                                            Log.d(TAG, "get START command");
-                                            startRecording();
-                                        } else {
-                                            Log.d(TAG, "START command already executed.");
-                                        }
-                                    } else if (config.getCommand().equals("stop")) {
-                                        handler.post(new Runnable() {
-                                            public void run() {
-                                                systemMessage.setText(TextLabel.PERSIAN_BATSAPP_PAUSED);
-                                            }
-                                        });
-                                        if (isRunning) {
-                                            Log.d(TAG, "get STOP command");
-                                            isRunning = false;
-                                            //stopRecording();
-                                        } else {
-                                            Log.d(TAG, "get STOP command but nothing to stop.");
-                                        }
-                                    } else {
-                                        Log.d(TAG, "get " + config.getCommand() + " command");
+                                    int MAX_COUNT_ALLOWED = 30; // wait for 30 * 5 second
+                                    switch (config.getCommand()) {
+                                        case "update":
+                                            handler.post(new Runnable() {
+                                                public void run() {
+                                                    systemMessage.setText(TextLabel.PERSIAN_PLEASE_UPDATE_BATSAPP);
+                                                }
+                                            });
+                                            Log.d(TAG, "get UPDATE command");
+                                            break;
+                                        case "start":
+                                            handler.post(new Runnable() {
+                                                public void run() {
+                                                    if (MainActivity.screenRecordStatus)
+                                                        systemMessage.setText(TextLabel.PERSIAN_BATSAPP_STARTED);
+                                                    else
+                                                        systemMessage.setText(TextLabel.PLEASE_WAIT);
 
+                                                }
+                                            });
+                                            if (!isRunning) {
+                                                Log.d(TAG, "get START command");
+                                                startRecording();
+                                            } else {
+                                                Log.d(TAG, "START command already executed.");
+                                            }
+                                            break;
+                                        case "stop":
+                                            handler.post(new Runnable() {
+                                                public void run() {
+                                                    systemMessage.setText(TextLabel.PERSIAN_BATSAPP_PAUSED);
+                                                }
+                                            });
+                                            if (isRunning) {
+                                                Log.d(TAG, "get STOP command");
+                                                isRunning = false;
+                                                //stopRecording();
+                                            } else {
+                                                Log.d(TAG, "get STOP command but nothing to stop.");
+                                            }
+                                            break;
+                                        default:
+                                            Log.d(TAG, "get " + config.getCommand() + " command");
+                                            break;
+                                    }
+
+                                    if (!MainActivity.screenRecordStatus) {
+                                        if (screenRecordStatusCounter > MAX_COUNT_ALLOWED) {
+                                            Log.d(TAG, "screenRecordStatusCounter max, reset app...");
+                                            // Utils.resetBatsapp(getApplicationContext());
+                                            //todo action?
+                                        } else {
+                                            screenRecordStatusCounter =
+                                                    screenRecordStatusCounter + 1;
+                                        }
+                                        Log.d(TAG, "screenRecordStatusCounter count " + screenRecordStatusCounter);
+                                        if (screenRecordStatusCounter > MAX_COUNT_ALLOWED) {
+                                            handler.post(new Runnable() {
+                                                public void run() {
+                                                    // for UX enhancement, send issue (code:100) to help center
+                                                    // for parents help program and tracking.
+                                                    Toast toast = Toast.makeText(getApplicationContext(),
+                                                            TextLabel.USER_NOT_ALLOWED_SCREENSHOT,
+                                                            Toast.LENGTH_LONG);
+                                                    toast.setGravity(Gravity.TOP, 0, 0);
+                                                    toast.show();
+                                                }
+                                            });
+                                        }
                                     }
                                     try {
                                         Log.d(TAG, "sleep for " + WAIT_COMMAND_CHECK + " second");
@@ -349,7 +390,7 @@ public class MainActivity extends Activity {
         Intent i = new Intent(Intent.ACTION_GET_CONTENT);
         i.addCategory(Intent.CATEGORY_OPENABLE);
         i.setType("*/*");
-        String[] mimeTypes = {"image/*", "video/*" };
+        String[] mimeTypes = {"image/*", "video/*"};
         i.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
 
         MainActivity.this.startActivityForResult(Intent.createChooser(i, "File Chooser"),
@@ -607,7 +648,7 @@ public class MainActivity extends Activity {
 
                 // authentication  and get authKey
                 String url = MainActivity.REST_AUTH_URL + "?username=" + userName + "&password=" + password;
-                final String[] result = {"" };
+                final String[] result = {""};
                 Request request = new Request.Builder()
                         .addHeader("auth", Security.getToken())
                         .addHeader("ver", Security.getVersion())
@@ -622,39 +663,38 @@ public class MainActivity extends Activity {
                         result[0] = Objects.requireNonNull(response.body()).string();
                         Log.d(TAG, "get authKey from server -> " + result[0]);
                         if (!result[0].isEmpty()) {
-
-
                             MainActivity.authKey = result[0];
                             Log.d(TAG, "REST Auth result " + MainActivity.authKey);
                             Utils.writeAuthKey(MainActivity.authKey);
-                            try {
-                                BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
-                                String encryptedQRCode = Crypto.encrypt(result[0]);
-
-                                Bitmap bitmap = barcodeEncoder.encodeBitmap(encryptedQRCode, BarcodeFormat.QR_CODE,
-                                        400, 400);
-                                ImageView imageViewQrCode = (ImageView) findViewById(R.id.qrimage);
-                                imageViewQrCode.setImageBitmap(bitmap);
-                                //todo check here , need to validate response?
-                                authKeyStatus = true;
-
-
-                                handler.post(new Runnable() {
-                                    public void run() {
-                                        userNameText.setVisibility(View.INVISIBLE);
-                                        passwordText.setVisibility(View.INVISIBLE);
-                                        getAuthKeyButton.setVisibility(View.INVISIBLE);
-                                        userNameLabel.setVisibility(View.INVISIBLE);
-                                        passwordLabel.setVisibility(View.INVISIBLE);
-
-                                        systemMessage.setVisibility(View.VISIBLE);
-                                    }
-                                });
-
-
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
+                            Utils.resetBatsapp(getApplicationContext());
+//                            try {
+//                                BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
+//                                String encryptedQRCode = Crypto.encrypt(result[0]);
+//
+//                                Bitmap bitmap = barcodeEncoder.encodeBitmap(encryptedQRCode, BarcodeFormat.QR_CODE,
+//                                        400, 400);
+//                                ImageView imageViewQrCode = (ImageView) findViewById(R.id.qrimage);
+//                                imageViewQrCode.setImageBitmap(bitmap);
+//                                //todo check here , need to validate response?
+//                                authKeyStatus = true;
+//                                Log.d(TAG, "GOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO");
+//                                config.setCommand("start");
+//                                handler.post(new Runnable() {
+//                                    public void run() {
+//                                        userNameText.setVisibility(View.INVISIBLE);
+//                                        passwordText.setVisibility(View.INVISIBLE);
+//                                        getAuthKeyButton.setVisibility(View.INVISIBLE);
+//                                        userNameLabel.setVisibility(View.INVISIBLE);
+//                                        passwordLabel.setVisibility(View.INVISIBLE);
+//
+//                                        systemMessage.setVisibility(View.VISIBLE);
+//                                    }
+//                                });
+//
+//
+//                            } catch (Exception e) {
+//                                e.printStackTrace();
+//                            }
                         } else {
                             handler.post(new Runnable() {
                                 public void run() {
