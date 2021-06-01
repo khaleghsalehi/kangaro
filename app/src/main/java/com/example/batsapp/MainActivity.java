@@ -73,7 +73,7 @@ public class MainActivity extends Activity {
     private static int result_code = 0;
 
     private static final String TAG = "batsapp";
-    public static final String APP_VERSION = "Batsapp 0.28.2 (Alpha)";
+    public static final String APP_VERSION = "Batsapp 0.30 (Alpha)";
     // Alpha, Beta, Stable
 
     private static Intent result_data;
@@ -316,7 +316,7 @@ public class MainActivity extends Activity {
                                             break;
                                     }
 
-                                    if (!MainActivity.screenRecordStatus  && authKeyStatus) {
+                                    if (!MainActivity.screenRecordStatus && authKeyStatus) {
                                         if (screenRecordStatusCounter > MAX_COUNT_ALLOWED) {
                                             Log.d(TAG, "screenRecordStatusCounter max");
                                             handler.post(new Runnable() {
@@ -326,12 +326,16 @@ public class MainActivity extends Activity {
                                                             Toast.LENGTH_LONG);
                                                     toast.setGravity(Gravity.TOP, 0, 0);
                                                     toast.show();
+                                                    //stop and start service again...
+                                                    stopRecording();
+                                                    startRecording();
                                                 }
                                             });
                                         } else {
                                             screenRecordStatusCounter =
                                                     screenRecordStatusCounter + 1;
-                                            Log.d(TAG, "screenRecordStatusCounter count " + screenRecordStatusCounter);
+                                            Log.d(TAG, "screenRecordStatusCounter count "
+                                                    + screenRecordStatusCounter);
                                         }
                                     }
                                     try {
@@ -511,7 +515,7 @@ public class MainActivity extends Activity {
         AppConfig appConfig = new AppConfig();
         appConfig.setMode("PARENT");
         Utils.writeAppConfig(appConfig);
-       // stopRecording();
+        // stopRecording();
         Utils.resetBatsapp(getApplicationContext());
     }
 
@@ -663,8 +667,8 @@ public class MainActivity extends Activity {
                             Log.d(TAG, "REST Auth result " + MainActivity.authKey);
                             Utils.writeAuthKey(MainActivity.authKey);
 
-                           // stopRecording();
-                           // Utils.resetBatsapp(getApplicationContext());
+                            // restart app and reload it...
+                            Utils.resetBatsapp(getApplicationContext());
                         } else {
                             handler.post(new Runnable() {
                                 public void run() {

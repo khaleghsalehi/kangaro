@@ -11,7 +11,7 @@ public class TextLabel {
     public static final String ERROR_USERNAME_OR_PASSWORD = "نام کاربری یا کلمه عبور نادرست است";
     public static final String ERROR_USERNAME_OR_PASSWORD_EMPTY = "نام کاربری و کلمه عبور را وارد کنید";
     public static final String PLEASE_WAIT = "لطفا منتظر بمانید...";
-    public static final String USER_NOT_ALLOWED_SCREENSHOT = "توجه: اجازه دسترسی برای عکس گرفتن از گوشی کودک یا با تاخیر بوده و یا Cancle شده است. در صورت عدم فعال شدن باتساب، نیاز به اجرای مجدد اپلیکیشن باتساب است. ( کد 1001)";
+    public static final String USER_NOT_ALLOWED_SCREENSHOT = "توجه:در صورت عدم فعال شدن باتساب، نیاز به توقف سرویس و اجرای مجدد اپلیکیشن باتساب است. (کد 1001)";
 
 
 }
