@@ -73,7 +73,7 @@ public class MainActivity extends Activity {
     private static int result_code = 0;
 
     private static final String TAG = "batsapp";
-    public static final String APP_VERSION = "Batsapp 0.26 (Alpha)";
+    public static final String APP_VERSION = "Batsapp 0.28.2 (Alpha)";
     // Alpha, Beta, Stable
 
     private static Intent result_data;
@@ -183,9 +183,6 @@ public class MainActivity extends Activity {
             TextView systemMessage = findViewById(R.id.systemMessage);
             Button getAuthKeyButton = findViewById(R.id.auth);
 
-            Button resetApplication = findViewById(R.id.resetApp);
-            // invisible reset button
-            resetApplication.setVisibility(View.INVISIBLE);
 
             //todo if config done, select and start activity
             TextView version = findViewById(R.id.appVersion);
@@ -245,7 +242,7 @@ public class MainActivity extends Activity {
                         authKeyStatus = false;
 
                         // authKey nullOrEmpty,  set capture status true
-                        screenRecordStatus = true;
+                        // screenRecordStatus = true;
 
                         userNameText.setVisibility(View.VISIBLE);
                         passwordText.setVisibility(View.VISIBLE);
@@ -273,7 +270,7 @@ public class MainActivity extends Activity {
                                         }
                                     });
                                 } else {
-                                    int MAX_COUNT_ALLOWED = 30; // wait for 30 * 5 second
+                                    int MAX_COUNT_ALLOWED = 4; // wait for 30 * 5 second
                                     switch (config.getCommand()) {
                                         case "update":
                                             handler.post(new Runnable() {
@@ -319,25 +316,11 @@ public class MainActivity extends Activity {
                                             break;
                                     }
 
-                                    if (!MainActivity.screenRecordStatus) {
+                                    if (!MainActivity.screenRecordStatus  && authKeyStatus) {
                                         if (screenRecordStatusCounter > MAX_COUNT_ALLOWED) {
-                                            Log.d(TAG, "screenRecordStatusCounter max ");
+                                            Log.d(TAG, "screenRecordStatusCounter max");
                                             handler.post(new Runnable() {
                                                 public void run() {
-                                                    if (!screenRecordStatus)
-                                                        resetApplication.setVisibility(View.VISIBLE);
-                                                }
-                                            });
-                                        } else {
-                                            screenRecordStatusCounter =
-                                                    screenRecordStatusCounter + 1;
-                                        }
-                                        Log.d(TAG, "screenRecordStatusCounter count " + screenRecordStatusCounter);
-                                        if (screenRecordStatusCounter > MAX_COUNT_ALLOWED) {
-                                            handler.post(new Runnable() {
-                                                public void run() {
-                                                    // for UX enhancement, send issue (code:100) to help center
-                                                    // for parents help program and tracking.
                                                     Toast toast = Toast.makeText(getApplicationContext(),
                                                             TextLabel.USER_NOT_ALLOWED_SCREENSHOT,
                                                             Toast.LENGTH_LONG);
@@ -345,6 +328,10 @@ public class MainActivity extends Activity {
                                                     toast.show();
                                                 }
                                             });
+                                        } else {
+                                            screenRecordStatusCounter =
+                                                    screenRecordStatusCounter + 1;
+                                            Log.d(TAG, "screenRecordStatusCounter count " + screenRecordStatusCounter);
                                         }
                                     }
                                     try {
@@ -524,6 +511,7 @@ public class MainActivity extends Activity {
         AppConfig appConfig = new AppConfig();
         appConfig.setMode("PARENT");
         Utils.writeAppConfig(appConfig);
+       // stopRecording();
         Utils.resetBatsapp(getApplicationContext());
     }
 
@@ -531,6 +519,7 @@ public class MainActivity extends Activity {
         AppConfig appConfig = new AppConfig();
         appConfig.setMode("KID");
         Utils.writeAppConfig(appConfig);
+        //stopRecording();
         Utils.resetBatsapp(getApplicationContext());
     }
 
@@ -635,10 +624,6 @@ public class MainActivity extends Activity {
         super.onDestroy();
     }
 
-    public void resetApplication(View view) {
-        Utils.resetBatsapp(getApplicationContext());
-    }
-
 
     public void getQrCode(View view) {
         EditText userNameText = findViewById(R.id.username);
@@ -677,35 +662,9 @@ public class MainActivity extends Activity {
                             MainActivity.authKey = result[0];
                             Log.d(TAG, "REST Auth result " + MainActivity.authKey);
                             Utils.writeAuthKey(MainActivity.authKey);
-                            Utils.resetBatsapp(getApplicationContext());
-//                            try {
-//                                BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
-//                                String encryptedQRCode = Crypto.encrypt(result[0]);
-//
-//                                Bitmap bitmap = barcodeEncoder.encodeBitmap(encryptedQRCode, BarcodeFormat.QR_CODE,
-//                                        400, 400);
-//                                ImageView imageViewQrCode = (ImageView) findViewById(R.id.qrimage);
-//                                imageViewQrCode.setImageBitmap(bitmap);
-//                                //todo check here , need to validate response?
-//                                authKeyStatus = true;
-//                                Log.d(TAG, "GOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO");
-//                                config.setCommand("start");
-//                                handler.post(new Runnable() {
-//                                    public void run() {
-//                                        userNameText.setVisibility(View.INVISIBLE);
-//                                        passwordText.setVisibility(View.INVISIBLE);
-//                                        getAuthKeyButton.setVisibility(View.INVISIBLE);
-//                                        userNameLabel.setVisibility(View.INVISIBLE);
-//                                        passwordLabel.setVisibility(View.INVISIBLE);
-//
-//                                        systemMessage.setVisibility(View.VISIBLE);
-//                                    }
-//                                });
-//
-//
-//                            } catch (Exception e) {
-//                                e.printStackTrace();
-//                            }
+
+                           // stopRecording();
+                           // Utils.resetBatsapp(getApplicationContext());
                         } else {
                             handler.post(new Runnable() {
                                 public void run() {
