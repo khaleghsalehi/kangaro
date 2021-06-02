@@ -42,7 +42,7 @@ public class Crypto {
         } catch (Exception e) {
             Log.d(TAG, "Error while encrypting: " + e.toString());
         }
-        return null;
+        return "";
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -62,7 +62,7 @@ public class Crypto {
         } catch (Exception e) {
             Log.d(TAG, "Error while decrypting: " + e.toString());
         }
-        return null;
+        return "";
     }
 
 }
