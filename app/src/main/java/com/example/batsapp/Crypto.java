@@ -17,9 +17,8 @@ import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 
 public class Crypto {
-    //todo got password from native, jni
-    private static final String SECRET_KEY = "TE3kY4h9GwyXwGCJzaJJkxUxPyhq";
-    private static final String SALT = "YkbmPwgWCnKnCJX74S";
+    private static final String SECRET_KEY = Security.getAESFromNative();
+    private static final String SALT = Security.getSaltFromNative();
 
 
     private static final String TAG = "batsapp";
