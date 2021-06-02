@@ -73,7 +73,7 @@ public class MainActivity extends Activity {
     private static int result_code = 0;
 
     private static final String TAG = "batsapp";
-    public static final String APP_VERSION = "Batsapp 0.30 (Alpha)";
+    public static final String APP_VERSION = "Batsapp 0.34 (Alpha)";
     // Alpha, Beta, Stable
 
     private static Intent result_data;
