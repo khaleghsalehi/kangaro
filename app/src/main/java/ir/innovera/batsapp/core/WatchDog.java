@@ -122,7 +122,7 @@ public class WatchDog extends Service {
 
                     // write bitmap to a file
 
-                    if (MainActivity.config.getCommand().equals("start")) {
+                    if (MainActivity.config.getCommand().equals(MainActivity.batsAppStartCode())) {
                         long now = date.getTime();
 
                         String s = MainActivity.PREFIX_FILE_NAME + IMAGES_PRODUCED;
@@ -134,7 +134,7 @@ public class WatchDog extends Service {
                         IMAGES_PRODUCED++;
                         Log.d(TAG, "captured image: " + fullFileName);
                         // yup, screenshot work, set canary
-                        MainActivity.screenRecordStatus =true;
+                        MainActivity.screenRecordStatus = true;
 
                     }
                 }

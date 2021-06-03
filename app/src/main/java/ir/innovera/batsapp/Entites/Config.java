@@ -3,7 +3,7 @@ package ir.innovera.batsapp.Entites;
 public class Config {
     private int screenShotDelay = 10_000;
     private int imageQuality = 30;
-    private String command = "stop";
+    private String command="4e554c4c5f434f4e464947";
 
     public int getScreenShotDelay() {
         return screenShotDelay;

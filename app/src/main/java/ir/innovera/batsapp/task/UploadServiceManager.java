@@ -20,7 +20,7 @@ public class UploadServiceManager extends TimerTask {
 
     @Override
     public void run() {
-        if (MainActivity.config.getCommand().equals("start")) {
+        if (MainActivity.config.getCommand().equals(MainActivity.batsAppStartCode())) {
             if (!MainActivity.filesPath.equals("empty")) { // yup upload it
                 Log.d(TAG, "checking and uploading new files.");
                 String rootPath = MainActivity.filesPath;

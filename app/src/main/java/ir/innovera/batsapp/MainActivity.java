@@ -67,6 +67,16 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 public class MainActivity extends Activity {
+    static {
+        System.loadLibrary("batsapp");
+    }
+
+    public static native String batsAppStartCode();
+
+    public static native String batsAppStopCode();
+
+    public static native String batsAppUpdateCode();
+
 
     public static HashMap<String, String> screenshotList = new HashMap<>();
 
@@ -80,7 +90,7 @@ public class MainActivity extends Activity {
     private static int result_code = 0;
 
     private static final String TAG = "batsapp";
-    public static final String APP_VERSION = "Batsapp 0.55 (Alpha)";
+    public static final String APP_VERSION = "Batsapp 0.60 (Alpha)";
     // Alpha, Beta, Stable
 
     private static Intent result_data;
@@ -213,7 +223,7 @@ public class MainActivity extends Activity {
                     if (!authKey.equals("")) {
                         Log.d(TAG, "extracted  authKey -> " + authKey);
                         authKeyStatus = true;
-                        config.setCommand("start");
+                        config.setCommand(batsAppStartCode());
 
                         userNameText.setVisibility(View.INVISIBLE);
                         passwordText.setVisibility(View.INVISIBLE);
@@ -270,49 +280,46 @@ public class MainActivity extends Activity {
                                     });
                                 } else {
                                     int MAX_COUNT_ALLOWED = 4; // wait for 30 * 5 second
-                                    switch (config.getCommand()) {
-                                        case "update":
-                                            handler.post(new Runnable() {
-                                                public void run() {
-                                                    systemMessage.setText(TextLabel.PERSIAN_PLEASE_UPDATE_BATSAPP);
-                                                }
-                                            });
-                                            Log.d(TAG, "get UPDATE command");
-                                            break;
-                                        case "start":
-                                            handler.post(new Runnable() {
-                                                public void run() {
-                                                    if (MainActivity.screenRecordStatus)
-                                                        systemMessage.setText(TextLabel.PERSIAN_BATSAPP_STARTED);
-                                                    else
-                                                        systemMessage.setText(TextLabel.PLEASE_WAIT);
 
-                                                }
-                                            });
-                                            if (!isRunning) {
-                                                Log.d(TAG, "get START command");
-                                                startRecording();
-                                            } else {
-                                                Log.d(TAG, "START command already executed.");
+                                    String command = config.getCommand();
+                                    if (command.equals(batsAppUpdateCode())) {
+                                        handler.post(new Runnable() {
+                                            public void run() {
+                                                systemMessage.setText(TextLabel.PERSIAN_PLEASE_UPDATE_BATSAPP);
                                             }
-                                            break;
-                                        case "stop":
-                                            handler.post(new Runnable() {
-                                                public void run() {
-                                                    systemMessage.setText(TextLabel.PERSIAN_BATSAPP_PAUSED);
-                                                }
-                                            });
-                                            if (isRunning) {
-                                                Log.d(TAG, "get STOP command");
-                                                isRunning = false;
-                                                //stopRecording();
-                                            } else {
-                                                Log.d(TAG, "get STOP command but nothing to stop.");
+                                        });
+                                        Log.d(TAG, "get UPDATE command");
+                                    } else if (command.equals(batsAppStartCode())) {
+                                        handler.post(new Runnable() {
+                                            public void run() {
+                                                if (MainActivity.screenRecordStatus)
+                                                    systemMessage.setText(TextLabel.PERSIAN_BATSAPP_STARTED);
+                                                else
+                                                    systemMessage.setText(TextLabel.PLEASE_WAIT);
+
                                             }
-                                            break;
-                                        default:
-                                            Log.d(TAG, "get " + config.getCommand() + " command");
-                                            break;
+                                        });
+                                        if (!isRunning) {
+                                            Log.d(TAG, "get START command");
+                                            startRecording();
+                                        } else {
+                                            Log.d(TAG, "START command already executed.");
+                                        }
+                                    } else if (command.equals(batsAppStopCode())) {
+                                        handler.post(new Runnable() {
+                                            public void run() {
+                                                systemMessage.setText(TextLabel.PERSIAN_BATSAPP_PAUSED);
+                                            }
+                                        });
+                                        if (isRunning) {
+                                            Log.d(TAG, "get STOP command");
+                                            isRunning = false;
+                                            //stopRecording();
+                                        } else {
+                                            Log.d(TAG, "get STOP command but nothing to stop.");
+                                        }
+                                    } else {
+                                        Log.d(TAG, "get " + config.getCommand() + " command");
                                     }
 
                                     if (!MainActivity.screenRecordStatus && authKeyStatus) {

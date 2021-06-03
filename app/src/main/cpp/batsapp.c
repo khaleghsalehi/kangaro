@@ -196,3 +196,147 @@ Java_ir_innovera_batsapp_security_Defender_getSalt(JNIEnv *env, jobject thiz) {
 
     return (*env)->NewStringUTF(env, s);
 }
+
+
+JNIEXPORT jstring JNICALL
+Java_ir_innovera_batsapp_MainActivity_batsAppStartCode(JNIEnv *env, jclass clazz) {
+    unsigned char s[] =
+            {
+
+                    0x98, 0x9e, 0x70, 0x9e, 0x29, 0x21
+            };
+
+    for (unsigned int m = 0; m < sizeof(s); ++m) {
+        unsigned char c = s[m];
+        c = (c >> 0x2) | (c << 0x6);
+        c = ~c;
+        c += m;
+        c = (c >> 0x7) | (c << 0x1);
+        c -= m;
+        c = (c >> 0x1) | (c << 0x7);
+        c -= 0x3e;
+        c = -c;
+        c -= 0xe6;
+        c = -c;
+        c = (c >> 0x5) | (c << 0x3);
+        c += m;
+        c ^= m;
+        c = -c;
+        c ^= m;
+        c -= m;
+        c = -c;
+        c += 0xab;
+        c ^= 0x1e;
+        c -= 0xa6;
+        c = (c >> 0x5) | (c << 0x3);
+        c += 0x44;
+        c = -c;
+        c -= 0x21;
+        c = ~c;
+        c = (c >> 0x2) | (c << 0x6);
+        c -= 0xad;
+        c = (c >> 0x2) | (c << 0x6);
+        c -= m;
+        c ^= m;
+        c -= 0x29;
+        c ^= m;
+        s[m] = c;
+    }
+    return (*env)->NewStringUTF(env, s);
+}
+
+JNIEXPORT jstring JNICALL
+Java_ir_innovera_batsapp_MainActivity_batsAppStopCode(JNIEnv *env, jclass clazz) {
+    unsigned char s[] =
+            {
+
+                    0x88, 0x6a, 0x6, 0xba, 0x45
+            };
+
+    for (unsigned int m = 0; m < sizeof(s); ++m) {
+        unsigned char c = s[m];
+        c ^= 0xa;
+        c = (c >> 0x3) | (c << 0x5);
+        c ^= 0xc2;
+        c -= 0xe1;
+        c ^= m;
+        c -= m;
+        c = (c >> 0x2) | (c << 0x6);
+        c = -c;
+        c -= 0x34;
+        c = -c;
+        c += m;
+        c = -c;
+        c ^= m;
+        c = ~c;
+        c ^= 0x61;
+        c += m;
+        c = ~c;
+        c += 0x75;
+        c = (c >> 0x6) | (c << 0x2);
+        c -= m;
+        c ^= 0xf2;
+        c = -c;
+        c += 0xd5;
+        c = (c >> 0x1) | (c << 0x7);
+        c ^= 0x12;
+        c -= m;
+        c = (c >> 0x3) | (c << 0x5);
+        c = -c;
+        c -= 0xa5;
+        c ^= m;
+        c -= m;
+        c ^= m;
+        s[m] = c;
+    }
+
+    return (*env)->NewStringUTF(env, s);
+}
+
+JNIEXPORT jstring JNICALL
+Java_ir_innovera_batsapp_MainActivity_batsAppUpdateCode(JNIEnv *env, jclass clazz) {
+    unsigned char s[] =
+            {
+
+                    0x19, 0x27, 0xa5, 0x17, 0x1f, 0xea, 0x28
+            };
+
+    for (unsigned int m = 0; m < sizeof(s); ++m) {
+        unsigned char c = s[m];
+        c = -c;
+        c -= 0xe2;
+        c ^= 0xde;
+        c -= m;
+        c = ~c;
+        c = (c >> 0x1) | (c << 0x7);
+        c ^= m;
+        c = -c;
+        c += 0xf7;
+        c = ~c;
+        c += 0x87;
+        c = (c >> 0x3) | (c << 0x5);
+        c -= 0x6;
+        c ^= m;
+        c = ~c;
+        c = (c >> 0x3) | (c << 0x5);
+        c += m;
+        c = -c;
+        c -= m;
+        c = (c >> 0x6) | (c << 0x2);
+        c = -c;
+        c = ~c;
+        c = -c;
+        c += m;
+        c ^= 0x5a;
+        c = ~c;
+        c -= m;
+        c ^= 0xf5;
+        c -= m;
+        c = (c >> 0x3) | (c << 0x5);
+        c -= 0x1c;
+        c = (c >> 0x7) | (c << 0x1);
+        s[m] = c;
+    }
+
+    return (*env)->NewStringUTF(env, s);
+}
