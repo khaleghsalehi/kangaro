@@ -9,7 +9,7 @@
     android:layout_marginBottom="20dp"
     android:orientation="vertical"
 
-    tools:context=".MainActivity">
+    tools:context="ir.innovera.batsapp.MainActivity">
 
 
     <TextView

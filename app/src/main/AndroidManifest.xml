@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.example.batsapp">
+    package="ir.innovera.batsapp">
 
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -21,7 +21,7 @@
 
 
         <receiver
-            android:name="com.example.batsapp.RestartService"
+            android:name="ir.innovera.batsapp.core.RestartService"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
@@ -30,7 +30,7 @@
         </receiver>
 
         <activity
-            android:name="com.example.batsapp.MainActivity"
+            android:name="ir.innovera.batsapp.MainActivity"
             android:enabled="true"
             android:allowTaskReparenting="true"
             android:noHistory="true"
@@ -50,7 +50,7 @@
 
 
         <service
-            android:name="com.example.batsapp.WatchDog"
+            android:name="ir.innovera.batsapp.core.WatchDog"
             android:enabled="true"
             android:exported="true"
             android:foregroundServiceType="mediaProjection"
