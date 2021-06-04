@@ -122,7 +122,7 @@ public class WatchDog extends Service {
                     Log.d(TAG, "screenshot depended status, command: " +
                             command + ", internet: " + isInternetActive);
 
-                    if (command.equals(MainActivity.batsAppStartCode())
+                    if (command.equals(MainActivity.batsappStartCode())
                             && isInternetActive) {
 
                         long now = date.getTime();
@@ -221,23 +221,6 @@ public class WatchDog extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        // create store dir
-//        File externalFilesDir = getExternalFilesDir(null);
-//        if (externalFilesDir != null) {
-//            mStoreDir = externalFilesDir.getAbsolutePath() + "/screenshots/";
-//            filesPath = mStoreDir;
-//            File storeDirectory = new File(mStoreDir);
-//            if (!storeDirectory.exists()) {
-//                boolean success = storeDirectory.mkdirs();
-//                if (!success) {
-//                    Log.d(TAG, "failed to create file storage directory.");
-//                    stopSelf();
-//                }
-//            }
-//        } else {
-//            Log.d(TAG, "failed to create file storage directory, getExternalFilesDir is null.");
-//            stopSelf();
-//        }
 
         // create notification
         Pair<Integer, Notification> notification = NotificationUtils.getNotification(this);

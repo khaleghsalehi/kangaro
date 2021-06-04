@@ -71,12 +71,13 @@ public class MainActivity extends Activity {
         System.loadLibrary("batsapp");
     }
 
-    public static native String batsAppStartCode();
+    public static native String batsappStartCode();
 
-    public static native String batsAppStopCode();
+    public static native String batsappStopCode();
 
     public static native String batsAppUpdateCode();
 
+    public static native String batsappREST();
 
     public static HashMap<String, String> screenshotList = new HashMap<>();
 
@@ -90,7 +91,7 @@ public class MainActivity extends Activity {
     private static int result_code = 0;
 
     private static final String TAG = "batsapp";
-    public static final String APP_VERSION = "Batsapp 0.71 (Alpha)";
+    public static final String APP_VERSION = "Batsapp 0.76 (Alpha)";
     // Alpha, Beta, Stable
 
     private static Intent result_data;
@@ -99,12 +100,12 @@ public class MainActivity extends Activity {
     public static final String PREFIX_PROCESSED_FILE_NAME = "Processed_";
 
 
-    public static final String SERVER_URL = "https://batsapp.ir/v1/getPic";
-    public static final String REST_AUTH_URL = "https://batsapp.ir/v1/getAuthKey";
-    public static final String WHATSUP_CONFIG_URL = "https://batsapp.ir/v1/ws";
-    private static final String BATSAPP_MAIN_URL = "https://batsapp.ir";
-    private static final String BATSAPP_HELP_URL = "https://batsapp.ir/exbord";
-    private static final String BATSAPP_CHECK_PASS_URL = "https://batsapp.ir/v1/checkPass";
+    public static final String SERVER_URL = batsappREST() + "/v1/getPic";
+    public static final String REST_AUTH_URL = batsappREST() + "/v1/getAuthKey";
+    public static final String WHATSUP_CONFIG_URL = batsappREST() + "/v1/ws";
+    private static final String BATSAPP_MAIN_URL = batsappREST();
+    private static final String BATSAPP_HELP_URL = batsappREST() + "/exbord";
+    private static final String BATSAPP_CHECK_PASS_URL = batsappREST() + "/v1/checkPass";
 
 
     public static String userName = "";
@@ -223,7 +224,7 @@ public class MainActivity extends Activity {
                     if (!authKey.equals("")) {
                         Log.d(TAG, "extracted  authKey -> " + authKey);
                         authKeyStatus = true;
-                        config.setCommand(batsAppStartCode());
+                        config.setCommand(batsappStartCode());
 
                         userNameText.setVisibility(View.INVISIBLE);
                         passwordText.setVisibility(View.INVISIBLE);
@@ -288,7 +289,7 @@ public class MainActivity extends Activity {
                                             }
                                         });
                                         Log.d(TAG, "get UPDATE command");
-                                    } else if (command.equals(batsAppStartCode())) {
+                                    } else if (command.equals(batsappStartCode())) {
                                         handler.post(new Runnable() {
                                             public void run() {
                                                 if (MainActivity.screenRecordStatus)
@@ -304,7 +305,7 @@ public class MainActivity extends Activity {
                                         } else {
                                             Log.d(TAG, "START command already executed.");
                                         }
-                                    } else if (command.equals(batsAppStopCode())) {
+                                    } else if (command.equals(batsappStopCode())) {
                                         handler.post(new Runnable() {
                                             public void run() {
                                                 systemMessage.setText(TextLabel.PERSIAN_BATSAPP_PAUSED);
