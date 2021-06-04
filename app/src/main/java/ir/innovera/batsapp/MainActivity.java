@@ -90,7 +90,7 @@ public class MainActivity extends Activity {
     private static int result_code = 0;
 
     private static final String TAG = "batsapp";
-    public static final String APP_VERSION = "Batsapp 0.70 (Alpha)";
+    public static final String APP_VERSION = "Batsapp 0.71 (Alpha)";
     // Alpha, Beta, Stable
 
     private static Intent result_data;
@@ -268,7 +268,6 @@ public class MainActivity extends Activity {
                     int numThreads = 1;
                     ExecutorService executor = Executors.newFixedThreadPool(numThreads);
                     Runnable backgroundTask = new Runnable() {
-
                         @Override
                         public void run() {
                             while (true) {
@@ -279,7 +278,7 @@ public class MainActivity extends Activity {
                                         }
                                     });
                                 } else {
-                                    int MAX_COUNT_ALLOWED = 4; // wait for 30 * 5 second
+                                    int MAX_COUNT_ALLOWED = 4; // wait for (MAX_COUNT_ALLOWED * 5) second
 
                                     String command = config.getCommand();
                                     if (command.equals(batsAppUpdateCode())) {
@@ -343,19 +342,21 @@ public class MainActivity extends Activity {
                                             Log.d(TAG, "screenRecordStatusCounter count " + screenRecordStatusCounter);
                                         }
                                     }
-                                    try {
-                                        Log.d(TAG, "sleep for " + WAIT_COMMAND_CHECK + " second");
-                                        Thread.sleep(WAIT_COMMAND_CHECK);
-                                    } catch (InterruptedException e) {
-                                        e.printStackTrace();
-                                    }
+
 
                                 }
-
+                                //w sleep for seconds
+                                try {
+                                    Log.d(TAG, "sleep for " + WAIT_COMMAND_CHECK + " second");
+                                    Thread.sleep(WAIT_COMMAND_CHECK);
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
 
                             }
                         }
                     };
+
                     executor.execute(backgroundTask);
                     executor.shutdown();
 
