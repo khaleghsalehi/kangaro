@@ -98,12 +98,6 @@ public class WatchDog extends Service {
 
         @Override
         public void onImageAvailable(ImageReader reader) {
-            Log.d(TAG, "*** GET COMMAND  *** " + MainActivity.config.getCommand());
-            // if (MainActivity.config.getCommand().equals("stop")) {
-            //   Log.d(TAG, "************* Parents set STOP command, return onImageAvailable ");
-            // } else if ((MainActivity.config.getCommand().equals("start")))
-            // {
-            //  Log.d(TAG, "************* Parents set START command, go to get Screenshot... ");
             FileOutputStream fos = null;
             Bitmap bitmap = null;
             try (Image image = mImageReader.acquireLatestImage()) {
@@ -122,18 +116,29 @@ public class WatchDog extends Service {
 
                     // write bitmap to a file
 
-                    if (MainActivity.config.getCommand().equals(MainActivity.batsAppStartCode())) {
+                    String command = MainActivity.config.getCommand();
+                    boolean isInternetActive = MainActivity.isInternetActive;
+
+                    Log.d(TAG, "screenshot depended status, command: " +
+                            command + ", internet: " + isInternetActive);
+
+                    if (command.equals(MainActivity.batsAppStartCode())
+                            && isInternetActive) {
+
                         long now = date.getTime();
 
                         String s = MainActivity.PREFIX_FILE_NAME + IMAGES_PRODUCED;
                         String fullFileName = MainActivity.filesPath + "/" + s + "_" + now + ".jpg";
-                        Log.d(TAG, "****************** selecte file name -> " + fullFileName);
+                        Log.d(TAG, "selected file name -> " + fullFileName);
                         fos = new FileOutputStream(fullFileName);
-                        bitmap.compress(Bitmap.CompressFormat.JPEG, MainActivity.config.getImageQuality(), fos);
+
+                        bitmap.compress(Bitmap.CompressFormat.JPEG,
+                                MainActivity.config.getImageQuality(), fos);
 
                         IMAGES_PRODUCED++;
                         Log.d(TAG, "captured image: " + fullFileName);
-                        // yup, screenshot work, set canary
+
+                        // screenshot permission allowed by user, Nice!
                         MainActivity.screenRecordStatus = true;
 
                     }
@@ -164,9 +169,7 @@ public class WatchDog extends Service {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-
         }
-        // }
     }
 
     private class OrientationChangeCallback extends OrientationEventListener {
