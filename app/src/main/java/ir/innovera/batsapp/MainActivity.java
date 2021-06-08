@@ -91,7 +91,7 @@ public class MainActivity extends Activity {
     private static int result_code = 0;
 
     private static final String TAG = "batsapp";
-    public static final String APP_VERSION = "Batsapp 0.80 (Alpha)";
+    public static final String APP_VERSION = "Batsapp 0.81 (Alpha)";
     // Alpha, Beta, Stable
 
     private static Intent result_data;
@@ -276,6 +276,14 @@ public class MainActivity extends Activity {
                                     handler.post(new Runnable() {
                                         public void run() {
                                             systemMessage.setText(TextLabel.PERSIAN_DEVICE_NOT_CONNECTED_INTERNET);
+
+                                            // message show, enabke or disable by parents via ws
+
+                                            Toast toast = Toast.makeText(getApplicationContext(),
+                                                    TextLabel.PERSIAN_DEVICE_NOT_CONNECTED_INTERNET,
+                                                    Toast.LENGTH_LONG);
+                                            toast.setGravity(Gravity.TOP, 0, 0);
+                                            toast.show();
                                         }
                                     });
                                 } else {

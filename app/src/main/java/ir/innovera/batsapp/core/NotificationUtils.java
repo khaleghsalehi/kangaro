@@ -11,6 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 import androidx.core.util.Pair;
 
+import ir.innovera.batsapp.MainActivity;
 import ir.innovera.batsapp.R;
 
 
@@ -47,7 +48,7 @@ public class NotificationUtils {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ID);
         builder.setSmallIcon(R.drawable.ic_record_white_24dp);
         builder.setContentTitle(context.getString(R.string.app_name));
-        builder.setContentText(context.getString(R.string.notify_record));
+        builder.setContentText(MainActivity.APP_VERSION);
         builder.setOngoing(true);
         builder.setCategory(Notification.CATEGORY_SERVICE);
         builder.setPriority(Notification.PRIORITY_LOW);

@@ -1,6 +1,3 @@
 <resources>
     <string name="app_name">BatsApp</string>
-    <string name="notify_record">در حال نظارت بر کودک است</string>
-    <string name="notify_stop">حالت نظارت متوقف شده است</string>
-    <string name="notify_shutdown">نظارت خاموش شده است</string>
 </resources>
