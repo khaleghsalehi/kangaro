@@ -91,7 +91,7 @@ public class MainActivity extends Activity {
     private static int result_code = 0;
 
     private static final String TAG = "batsapp";
-    public static final String APP_VERSION = "Batsapp 0.81 (Alpha)";
+    public static final String APP_VERSION = "Batsapp 0.85 (Alpha)";
     // Alpha, Beta, Stable
 
     private static Intent result_data;
@@ -191,6 +191,7 @@ public class MainActivity extends Activity {
             TextView userNameLabel = findViewById(R.id.usernameLable);
             TextView passwordLabel = findViewById(R.id.passwordLable);
             TextView systemMessage = findViewById(R.id.systemMessage);
+            TextView loginLogoText = findViewById(R.id.loginLogoText);
             Button getAuthKeyButton = findViewById(R.id.auth);
 
 
@@ -229,6 +230,8 @@ public class MainActivity extends Activity {
                         userNameText.setVisibility(View.INVISIBLE);
                         passwordText.setVisibility(View.INVISIBLE);
 
+                        loginLogoText.setVisibility(View.INVISIBLE);
+
                         userNameLabel.setVisibility(View.INVISIBLE);
                         passwordLabel.setVisibility(View.INVISIBLE);
 
@@ -256,6 +259,7 @@ public class MainActivity extends Activity {
 
                         userNameText.setVisibility(View.VISIBLE);
                         passwordText.setVisibility(View.VISIBLE);
+                        loginLogoText.setVisibility(View.VISIBLE);
 
                         getAuthKeyButton.setVisibility(View.VISIBLE);
                         userNameLabel.setVisibility(View.VISIBLE);
