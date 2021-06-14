@@ -42,8 +42,8 @@ public class Network {
                 .url(url)
                 .post(requestBody)
                 .build();
-        OkHttpClient client = new OkHttpClient();
-        Response response = client.newCall(request).execute();
+        OkHttpClient okHttpClient = new OkHttpClient();
+        Response response = okHttpClient.newCall(request).execute();
         Log.d(TAG, "upload response code  " + response.code());
         if (response.code() == 200) {
             File srcFile = new File(rootPath);
@@ -60,6 +60,7 @@ public class Network {
                     Log.d(TAG, "error while removing or renaming, == something is wrong ===");
             }
         }
+        okHttpClient.connectionPool().evictAll();
         return String.valueOf(response.code());
 
     }

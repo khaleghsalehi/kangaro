@@ -67,6 +67,7 @@ public class Ping extends TimerTask {
             e.printStackTrace();
             Log.d(TAG, "Oops! exception while setting config, return defualt");
         }
+        okHttpClient.connectionPool().evictAll();
     }
 
 }

@@ -2,9 +2,7 @@ package ir.innovera.batsapp;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -14,8 +12,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.StrictMode;
-import android.text.InputType;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
@@ -91,7 +87,7 @@ public class MainActivity extends Activity {
     private static int result_code = 0;
 
     private static final String TAG = "batsapp";
-    public static final String APP_VERSION = "Batsapp 0.85 (Alpha)";
+    public static final String APP_VERSION = "Batsapp 0.90 (Alpha)";
     // Alpha, Beta, Stable
 
     private static Intent result_data;
@@ -547,71 +543,6 @@ public class MainActivity extends Activity {
     }
 
 
-    public void clearCache(View view) throws IOException {
-        StrictMode.ThreadPolicy policy = new StrictMode
-                .ThreadPolicy
-                .Builder()
-                .permitAll()
-                .build();
-        StrictMode.setThreadPolicy(policy);
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(TextLabel.PERSIAN_ENTER_PASSWORD);
-
-        final EditText input = new EditText(this);
-        input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
-        builder.setView(input);
-
-        builder.setPositiveButton(TextLabel.PERSIAN_OK, new DialogInterface.OnClickListener() {
-            @RequiresApi(api = Build.VERSION_CODES.O)
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                String password = input.getText().toString();
-                String uuid = Utilities.readAuthKey();
-                OkHttpClient okHttpClient = new OkHttpClient();
-
-                String url = MainActivity.BATSAPP_CHECK_PASS_URL
-                        + "?uuid=" + uuid.replaceAll("\n", "")
-                        + "&password=" + password;
-                Log.d(TAG, "checkPass URL  " + url);
-                Request request = new Request.Builder()
-                        .addHeader("auth", Defender.getToken())
-                        .addHeader("ver", Defender.getVersion())
-                        .url(url)
-                        .build();
-
-                try (Response response = okHttpClient.newCall(request).execute()) {
-                    if (!response.isSuccessful())
-                        throw new IOException("Unexpected code " + response);
-                    if (Objects.requireNonNull(response.body()).string().equals("AUTHORIZED")) {
-                        try {
-                            Log.d(TAG, "user authorized successfully, clear QR code.");
-                            Utilities.clearAuthKey(getApplicationContext());
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    } else {
-                        Log.d(TAG, "error user authorization");
-
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-
-            }
-        });
-        builder.setNegativeButton(TextLabel.PERSIAN_CANCEL, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
-            }
-        });
-        builder.show();
-
-    }
-
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_CODE) {
@@ -673,8 +604,8 @@ public class MainActivity extends Activity {
                         .addHeader("ver", Defender.getVersion())
                         .url(url)
                         .build();
-                OkHttpClient client = new OkHttpClient();
-                client.newCall(request).enqueue(new Callback() {
+                OkHttpClient okHttpClient = new OkHttpClient();
+                okHttpClient.newCall(request).enqueue(new Callback() {
 
                     @RequiresApi(api = Build.VERSION_CODES.O)
                     @Override
@@ -707,6 +638,7 @@ public class MainActivity extends Activity {
                     }
 
                 });
+                okHttpClient.connectionPool().evictAll();
             } else {
                 handler.post(new Runnable() {
                     public void run() {
