@@ -346,28 +346,29 @@ Java_ir_innovera_batsapp_MainActivity_batsappREST(JNIEnv *env, jclass clazz) {
     unsigned char s[] =
             {
 
-                    0x36, 0xe3, 0x90, 0xbd, 0xd6, 0xde, 0xef, 0xec,
-                    0x35, 0xff, 0x78, 0xf1, 0x25, 0xef, 0xec, 0xd0,
-                    0x8a, 0xbb, 0x7a
+                    0x81, 0xe1, 0xa1, 0x80, 0xd8, 0xde, 0x63, 0xa3,
+                    0x14, 0xcb, 0xc4, 0xa6, 0xde, 0x6e, 0x79, 0xbf,
+                    0xdd, 0x8b
             };
 
-    for (unsigned int m = 0; m < sizeof(s); ++m) {
+    for (unsigned int m = 0; m < sizeof(s); ++m)
+    {
         unsigned char c = s[m];
-        c -= m;
-        c = ~c;
-        c = -c;
-        c = (c >> 0x1) | (c << 0x7);
-        c += m;
-        c ^= 0xa9;
-        c -= m;
-        c ^= m;
-        c = -c;
-        c += 0x2d;
-        c ^= m;
-        c = (c >> 0x3) | (c << 0x5);
-        c ^= 0x99;
+        c ^= 0x97;
         c = -c;
         c = (c >> 0x6) | (c << 0x2);
+        c ^= m;
+        c = (c >> 0x1) | (c << 0x7);
+        c = ~c;
+        c -= m;
+        c = (c >> 0x3) | (c << 0x5);
+        c -= 0x9e;
+        c ^= 0xa8;
+        c = -c;
+        c = (c >> 0x1) | (c << 0x7);
+        c -= 0x83;
+        c ^= 0xe2;
+        c = ~c;
         s[m] = c;
     }
 

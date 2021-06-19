@@ -13,4 +13,4 @@
 13- parent can set random mode for screenshot
 14- alarm or warning parent (send sms) if devices internet is off?
 15- test on various device such as Xiomi, Nokia, Samsung, Huawi, etc.
-16-
+16- if QRcode is not valid, during ws , if return error, then clear auth.key and ask user/pass again

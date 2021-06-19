@@ -27,6 +27,7 @@ import ir.innovera.batsapp.security.Crypto;
 public class Utilities {
     private static final String AUTH_KEY_FILE_NAME = MainActivity.authKeyPath + "/" + "authKey.data";
     private static final String TAG = "batsapp";
+    public static final String APP_CONFIG_FILE_NAME = "batsapp.cfg";
 
     public static String getFileChecksum(MessageDigest digest, File file) throws IOException {
         FileInputStream fis = new FileInputStream(file);
@@ -98,7 +99,7 @@ public class Utilities {
 
 
     public static AppConfig readAppConfig() {
-        String configAddress = MainActivity.authKeyPath + "/" + "app.cfg";
+        String configAddress = MainActivity.authKeyPath + "/" + APP_CONFIG_FILE_NAME;
         try {
             File file = new File(configAddress);
             if (!file.exists())
@@ -124,7 +125,7 @@ public class Utilities {
     }
 
     public static void writeAppConfig(AppConfig appConfig) {
-        String configAddress = MainActivity.authKeyPath + "/" + "app.cfg";
+        String configAddress = MainActivity.authKeyPath + "/" + APP_CONFIG_FILE_NAME;
         try {
             File file = new File(configAddress);
             if (!file.exists())
